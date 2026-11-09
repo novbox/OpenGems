@@ -1426,7 +1426,7 @@ async function lookupAdd() {
     addDraft = out.draft
     addMetaDraft = out.draft
     addTitleInput.value = out.draft.titleZh
-    addDescInput.value = out.draft.descZh
+    addDescInput.value = out.draft.descZh || out.draft.description || ''
     addWhyInput.value = ''
     addWhyInput.placeholder = '一句话说明它好在哪里（必填，至少 4 个字）'
     addCatNew.value = ''
