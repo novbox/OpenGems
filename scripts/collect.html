@@ -1084,7 +1084,7 @@ async function renderRepo(fullName) {
   if (restTopics.length) {
     const more = document.createElement('button')
     more.type = 'button'
-    more.className = 'chip outline more'
+    more.className = 'chip outline chip-more'
     more.textContent = '+' + restTopics.length
     more.onclick = () => {
       const existed = document.getElementById('tags-pop')
