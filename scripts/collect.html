@@ -260,7 +260,7 @@ main{padding:var(--s-2) 0 var(--s-5)}
 .chip{border:0;border-radius:6px;padding:2px 8px;background:var(--panel-2);color:var(--muted);font-size:var(--fs-label);line-height:1.4}
 .chip.sub{background:color-mix(in srgb,var(--accent) 14%,transparent);color:var(--accent);font-weight:600}
 .chip.recent{background:color-mix(in srgb,var(--accent) 14%,transparent);color:var(--accent);font-weight:600}
-.card-foot{display:flex;align-items:center;gap:var(--s-3);margin-top:auto;padding-top:var(--s-1)}
+.card-foot{display:flex;align-items:flex-end;gap:var(--s-3);margin-top:auto;padding-top:var(--s-1)}
 .gh{display:inline-flex;align-items:center;gap:4px;font-size:var(--fs-meta);line-height:var(--lh-meta);font-weight:var(--fw-medium);color:var(--muted);background:color-mix(in srgb,var(--text) 4%,transparent);border:1px solid var(--line);border-radius:999px;padding:3px 10px;transition:background .15s,border-color .15s,color .15s}
 .gh:hover{color:var(--accent);background:color-mix(in srgb,var(--accent) 10%,transparent);border-color:color-mix(in srgb,var(--accent) 30%,transparent)}
 .save{margin-left:auto;height:var(--size-save);padding:0 var(--s-4);font-family:inherit;font-size:var(--fs-small);line-height:var(--lh-small);font-weight:var(--fw-semibold);border:1px solid color-mix(in srgb,var(--ok) 40%,transparent);background:color-mix(in srgb,var(--ok) 12%,transparent);color:var(--ok);border-radius:var(--r-sm);cursor:pointer;transition:background .15s,color .15s}
@@ -542,7 +542,8 @@ const SUB_OPTIONS = ['全部', '图标', '动效', '组件库', '设计系统']
 let subMap = {}
 
 function subsOf(item) {
-  return subMap[item.fullName] || []
+  // 兼容两种存储：["图标"] 与 [{ name, auto }]
+  return (subMap[item.fullName] || []).map((tag) => (typeof tag === 'string' ? tag : tag.name)).filter(Boolean)
 }
 
 const main = document.getElementById('main')

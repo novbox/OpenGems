@@ -30,7 +30,7 @@ function inboxFile(fullName) {
   return dataPath('inbox', `${owner}--${repo}`.toLowerCase() + '.md')
 }
 
-function saveItem(item, category) {
+function saveItem(item, category, extra = {}) {
   const file = inboxFile(item.fullName)
   if (existsSync(file)) return { ok: false, reason: 'exists', file }
   mkdirSync(dataPath('inbox'), { recursive: true })
@@ -48,7 +48,7 @@ added: ${date}
 last_reviewed: ${date}
 status: candidate
 category: ${category.id}
-why: ${why}
+${Array.isArray(extra.topics) && extra.topics.length ? 'topics: [' + extra.topics.slice(0, 8).join(', ') + ']\n' : ''}${Array.isArray(extra.tags) && extra.tags.length ? 'tags: [' + extra.tags.map((t) => t.name || t).join(', ') + ']\n' : ''}why: ${why}
 ---
 
 ## 它是什么
@@ -306,12 +306,36 @@ for (const name of ['inbox', 'topics', 'archive', 'reviews', 'candidates', 'data
 
 const SUBS = ['图标', '动效', '组件库', '设计系统']
 const subsFile = () => dataPath('data', 'subcategories.json')
-function readSubs() {
-  try { return JSON.parse(readFileSync(subsFile(), 'utf8')) } catch { return {} }
+function readTagState() {
+  let raw = null
+  try { raw = JSON.parse(readFileSync(subsFile(), 'utf8')) } catch { raw = null }
+  if (!raw || typeof raw !== 'object' || Array.isArray(raw)) return { items: {}, categories: [] }
+  if (raw.items || raw.categories) {
+    return { items: raw.items || {}, categories: Array.isArray(raw.categories) ? raw.categories : [] }
+  }
+  // 旧格式：{ "owner/repo": ["图标"] }
+  const items = {}
+  for (const [key, value] of Object.entries(raw)) {
+    if (Array.isArray(value)) items[key] = value.map((name) => ({ name, auto: false }))
+  }
+  return { items, categories: [] }
 }
-function writeSubs(value) {
+function writeTagState(state) {
   mkdirSync(dataPath('data'), { recursive: true })
-  writeFileSync(subsFile(), JSON.stringify(value, null, 2) + '\n')
+  writeFileSync(subsFile(), JSON.stringify({ items: state.items, categories: state.categories }, null, 2) + '\n')
+}
+function tagsOf(state, fullName) {
+  return (state.items[fullName] || []).map((tag) => (typeof tag === 'string' ? { name: tag, auto: false } : tag))
+}
+function setTagsOnCard(fullName, tags) {
+  const file = inboxFile(fullName)
+  if (!existsSync(file)) return false
+  let text = readFileSync(file, 'utf8')
+  const line = 'tags: [' + tags.map((t) => t.name).join(', ') + ']'
+  if (/^tags:.*$/m.test(text)) text = text.replace(/^tags:.*$/m, line)
+  else text = text.replace(/^(status:.*)$/m, '$1\n' + line)
+  writeFileSync(file, text)
+  return true
 }
 
 function json(res, status, data) {
@@ -440,19 +464,34 @@ const server = createServer(async (req, res) => {
       return json(res, 200, { ok: true, fullName: info.fullName, file })
     }
     if (url.pathname === '/api/subcategories' && req.method === 'GET') {
-      return json(res, 200, { ok: true, items: readSubs(), options: SUBS })
+      const state = readTagState()
+      return json(res, 200, { ok: true, items: state.items, categories: state.categories, options: SUBS })
     }
     if (url.pathname === '/api/subcategories' && req.method === 'POST') {
       const body = await readBody(req)
+      const state = readTagState()
+      // 新建自定义分类
+      if (body.category) {
+        const name = String(body.category).trim().slice(0, 12)
+        if (name && !SUBS.includes(name) && !state.categories.includes(name)) state.categories.push(name)
+      }
       const fullName = String(body.fullName || '')
-      if (!fullName) return json(res, 400, { ok: false })
-      const subs = Array.isArray(body.subs) ? body.subs.filter((sub) => SUBS.includes(sub)) : []
-      const all = readSubs()
-      if (subs.length) all[fullName] = subs
-      else delete all[fullName]
-      writeSubs(all)
+      if (fullName) {
+        let tags = []
+        if (Array.isArray(body.tags)) {
+          tags = body.tags
+            .map((tag) => ({ name: String(tag && tag.name ? tag.name : tag).trim().slice(0, 12), auto: Boolean(tag && tag.auto) }))
+            .filter((tag) => tag.name)
+        } else if (Array.isArray(body.subs)) {
+          tags = body.subs.filter((sub) => SUBS.includes(sub)).map((name) => ({ name, auto: false }))
+        }
+        if (tags.length) state.items[fullName] = tags
+        else delete state.items[fullName]
+        setTagsOnCard(fullName, tags)
+      }
+      writeTagState(state)
       scheduleSync()
-      return json(res, 200, { ok: true, items: all })
+      return json(res, 200, { ok: true, items: state.items, categories: state.categories })
     }
     if (url.pathname === '/api/sync') {
       if (req.method === 'GET') return json(res, 200, { ok: true, ...syncStatus() })
