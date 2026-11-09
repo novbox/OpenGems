@@ -74,7 +74,7 @@ export OPEN_GEMS_DATA=~/YeeAIGC/opengems-data
 
 ## 收藏页设计规范
 
-样式只有一套刻度，后续改动一律沿用（token 定义在 `scripts/collect.html` 的 `:root`）：
+样式只有一套刻度，后续改动一律沿用（token 定义在 `scripts/collect.html` 的 `:root`）。**本标准仅适用于 OpenGems 收藏页本身，不外推到其他项目。**
 
 | 项 | 取值 |
 | --- | --- |
