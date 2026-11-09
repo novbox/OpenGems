@@ -942,11 +942,25 @@ function rewriteReadme(html, fullName) {
     }
   })
   const base = 'https://github.com/' + fullName + '/'
-  doc.querySelectorAll('img[src],a[href],source[srcset]').forEach((node) => {
-    const attr = node.hasAttribute('src') ? 'src' : node.hasAttribute('href') ? 'href' : 'srcset'
+  const rawBase = 'https://raw.githubusercontent.com/' + fullName + '/HEAD/'
+  const absolute = (value) => (!value || /^(https?:|mailto:|#|data:)/i.test(value) ? null : value.replace(/^\.?\//, '').replace(/^\//, ''))
+  // 图片与 source 走 raw，链接走 github 页面
+  doc.querySelectorAll('img[src],source[srcset]').forEach((node) => {
+    const attr = node.hasAttribute('src') ? 'src' : 'srcset'
     const value = node.getAttribute(attr)
-    if (!value || /^(https?:|mailto:|#|data:)/i.test(value)) return
-    node.setAttribute(attr, new URL(value, base).href)
+    const rel = absolute(value)
+    if (!rel) return
+    node.setAttribute(attr, attr === 'srcset'
+      ? value.split(',').map((part) => {
+          const [url, ...rest] = part.trim().split(/\s+/)
+          const clean = absolute(url)
+          return clean ? [rawBase + encodeURI(clean), ...rest].join(' ') : part.trim()
+        }).join(', ')
+      : rawBase + encodeURI(rel))
+  })
+  doc.querySelectorAll('a[href]').forEach((node) => {
+    const rel = absolute(node.getAttribute('href'))
+    if (rel) node.setAttribute('href', new URL(rel, base).href)
   })
   return doc.body.innerHTML
 }
