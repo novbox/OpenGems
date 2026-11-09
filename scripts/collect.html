@@ -108,7 +108,7 @@ header{position:sticky;top:0;z-index:30;background:color-mix(in srgb,var(--bg) 7
 .search input{width:150px;background:none;border:0;outline:none;color:var(--text);font-family:inherit;font-size:var(--fs-small);line-height:var(--lh-small)}
 .search input::placeholder{color:var(--muted)}
 .icon-btn{width:var(--size-control);height:var(--size-control);display:grid;place-items:center;border:1px solid var(--line);border-radius:var(--r-md);background:var(--panel);color:var(--muted);cursor:pointer;transition:color .15s,border-color .15s}
-.icon-btn:hover{color:var(--text);border-color:color-mix(in srgb,var(--text) 20%,var(--line))}
+.icon-btn:hover{color:var(--text);background:color-mix(in srgb,var(--text) 8%,var(--panel))}
 .icon-btn svg{width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:1.7}
 .cta{height:var(--size-control);border:0;border-radius:var(--r-md);background:var(--accent);color:#fff;font-family:inherit;font-size:var(--fs-small);line-height:var(--lh-small);font-weight:var(--fw-bold);padding:0 var(--s-4);cursor:pointer;transition:filter .15s,transform .15s;box-shadow:0 8px 22px rgba(124,156,255,.28)}
 .cta:hover:not(:disabled){filter:brightness(1.07);transform:translateY(-1px)}
@@ -412,7 +412,7 @@ main{padding:var(--s-2) 0 var(--s-5)}
         <svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"></path></svg>
       </button>
       <button class="icon-btn" id="theme" title="切换主题" aria-label="切换主题">
-        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"></circle><path d="M12 3v2M12 19v2M5 12H3M21 12h-2M6.3 6.3 4.9 4.9M19.1 19.1l-1.4-1.4M6.3 17.7l-1.4 1.4M19.1 4.9l-1.4 1.4"></path></svg>
+        <svg id="theme-icon" viewBox="0 0 24 24"></svg>
       </button>
       <button class="cta-icon" id="discover" title="发现" aria-label="发现">
         <svg class="radar-svg" viewBox="0 0 24 24" aria-hidden="true">
@@ -1502,7 +1502,20 @@ document.getElementById('theme').onclick = () => {
   const next = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark'
   document.documentElement.dataset.theme = next
   try { localStorage.setItem('oss-picks-theme', next) } catch (error) {}
+  syncThemeIcon()
 }
+
+// 深色显示太阳（点它切到浅色），浅色显示月亮
+const THEME_ICONS = {
+  sun: '<circle cx="12" cy="12" r="4"></circle><path d="M12 3v2M12 19v2M5 12H3M21 12h-2M6.3 6.3 4.9 4.9M19.1 19.1l-1.4-1.4M6.3 17.7l-1.4 1.4M19.1 4.9l-1.4 1.4"></path>',
+  moon: '<path d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5z"></path>',
+}
+function syncThemeIcon() {
+  const el = document.getElementById('theme-icon')
+  if (!el) return
+  el.innerHTML = document.documentElement.dataset.theme === 'dark' ? THEME_ICONS.sun : THEME_ICONS.moon
+}
+syncThemeIcon()
 document.getElementById('discover').onclick = async (event) => {
   const button = event.currentTarget
   if (button.disabled) return
