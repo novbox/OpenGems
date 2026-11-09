@@ -372,8 +372,9 @@ main.wrap{padding-bottom:var(--s-7)}
 .search-clear svg{width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:1;stroke-linecap:round}
 
 /* 弹窗按钮：严格对齐 DSH 面板按钮（28px 高 / 8px 圆角 / 12px 字） */
-.modal-actions .btn{height:28px;padding:0 12px;border-radius:8px;font-size:12px;line-height:1;border:1px solid var(--line);background:transparent;color:var(--text)}
-.modal-actions .btn:hover{background:color-mix(in srgb,var(--text) 8%,transparent)}
+.modal-actions .btn{height:28px;padding:0 12px;border-radius:8px;font-size:12px;font-weight:500;line-height:1;
+  border:1px solid transparent;background:color-mix(in srgb,var(--text) 6%,transparent);color:var(--text)}
+.modal-actions .btn:hover{background:color-mix(in srgb,var(--text) 10%,transparent)}
 .modal-actions .btn.primary{background:var(--accent);border-color:transparent;color:#fff;font-weight:500}
 .modal-actions .btn.primary:hover{filter:brightness(1.06);background:var(--accent)}
 .modal-actions .btn.primary:disabled{background:var(--panel-2);border-color:transparent;color:var(--muted);filter:none}
