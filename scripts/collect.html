@@ -109,14 +109,14 @@ header{position:sticky;top:0;z-index:30;background:color-mix(in srgb,var(--bg) 7
 .search input::placeholder{color:var(--muted)}
 .icon-btn{width:var(--size-control);height:var(--size-control);display:grid;place-items:center;border:1px solid var(--line);border-radius:var(--r-md);background:var(--panel);color:var(--muted);cursor:pointer;transition:color .15s,border-color .15s}
 .icon-btn:hover{color:var(--text);background:color-mix(in srgb,var(--text) 8%,var(--panel))}
-.icon-btn svg{width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:1.7}
+.icon-btn svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:1.5}
 .cta{height:var(--size-control);border:0;border-radius:var(--r-md);background:var(--accent);color:#fff;font-family:inherit;font-size:var(--fs-small);line-height:var(--lh-small);font-weight:var(--fw-bold);padding:0 var(--s-4);cursor:pointer;transition:filter .15s,transform .15s;box-shadow:0 8px 22px rgba(124,156,255,.28)}
 .cta:hover:not(:disabled){filter:brightness(1.07);transform:translateY(-1px)}
 .cta:disabled{opacity:.6;cursor:default}
 .cta-icon{width:var(--size-control);height:var(--size-control);border:1px solid var(--line);border-radius:var(--r-md);background:var(--panel);padding:0;display:grid;place-items:center;cursor:pointer;position:relative;color:var(--muted);transition:color .15s,border-color .15s,transform .15s}
 .cta-icon:hover:not(:disabled){color:var(--accent);border-color:color-mix(in srgb,var(--accent) 50%,var(--line));transform:translateY(-1px)}
 .cta-icon:disabled{cursor:default}
-.cta-icon .radar-svg{width:20px;height:20px;display:block;fill:none;stroke:currentColor;stroke-width:1;stroke-linecap:round}
+.cta-icon .radar-svg{width:16px;height:16px;display:block;fill:none;stroke:currentColor;stroke-width:1;stroke-linecap:round}
 .cta-icon .radar-svg *{vector-effect:non-scaling-stroke}
 .cta-icon .radar-svg .inner{stroke-width:1}
 .cta-icon .radar-svg .beam{stroke-width:1}
@@ -409,7 +409,7 @@ main{padding:var(--s-2) 0 var(--s-5)}
         <input id="q" type="search" placeholder="搜索" autocomplete="off">
       </label>
       <button class="icon-btn" id="open-add" type="button" title="添加收藏" aria-label="添加收藏">
-        <svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"></path></svg>
+        <svg viewBox="0 0 24 24"><path d="M12 3v18M3 12h18"></path></svg>
       </button>
       <button class="icon-btn" id="theme" title="切换主题" aria-label="切换主题">
         <svg id="theme-icon" viewBox="0 0 24 24"></svg>
