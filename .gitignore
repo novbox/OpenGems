@@ -1,0 +1,21 @@
+# 运行时数据：每台机器各自一份，不进仓库
+inbox/
+topics/
+reviews/
+archive/
+candidates/
+data/
+debug.json
+
+# 本地配置与密钥
+.env
+.env.*
+!.env.example
+discover.json
+
+# 杂项
+cache/
+logs/
+screenshots/
+node_modules/
+.DS_Store

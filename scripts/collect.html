@@ -1,0 +1,1216 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>OpenGems · 探索值得发现的开源世界</title>
+<link rel="icon" type="image/svg+xml" href="/assets/favicon.svg">
+<script>
+try {
+  var forced = new URLSearchParams(location.search).get('theme');
+  var savedTheme = localStorage.getItem('oss-picks-theme');
+  var prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+  var initial = forced === 'dark' || forced === 'light' ? forced : savedTheme || (prefersDark ? 'dark' : 'dark');
+  document.documentElement.dataset.theme = initial;
+} catch (error) {}
+</script>
+<style>
+/*
+ * 设计规范（本页样式唯一来源，新增样式请沿用以下刻度）
+ * 间距：4 / 8 / 12 / 16 / 24 / 32 / 48 / 64（8pt 网格，只允许 4 的微调）
+ * 字号：11 / 12 / 13 / 15 / 20 / 56
+ * 行高：16 / 20 / 22 / 28 / 64（正文 22，标题按字号配套）
+ * 字重：400 正文 / 500 强调 / 600 标题 / 700 展示标题
+ * 圆角：8 控件 / 12 输入 / 16 卡片 / 999 胶囊
+ * 容器：1120px，左右留白 32（移动端 20）
+ */
+html{scrollbar-gutter:stable both-edges}
+:root{color-scheme:light;
+  --brand-solid:#f9fafb; --on-brand:#151517;
+  --bg:#151517; --panel:#232324; --panel-2:#2c2c2e; --line:rgba(255,255,255,.06); --line-soft:rgba(255,255,255,.04);
+  --text:#f9fafb; --muted:#adb2b8; --brand:#4d93f8; --brand-2:#4d93f8;
+  --ok:#22c55e; --warn:#f59e0b; --danger:#ff453a; --accent:#4d93f8;
+  --grad-a:#5686fe; --grad-b:#7aaaff; --grad-c:#a78bfa;
+  --grad-a:#0a84ff; --grad-b:#5e5ce6; --grad-c:#bf5af2; --shadow:0 12px 32px rgba(0,0,0,.5);
+  --glow-1:transparent; --glow-2:transparent;
+
+  --s-1:4px; --s-2:8px; --s-3:12px; --s-4:16px; --s-5:24px; --s-6:32px; --s-7:48px; --s-8:64px;
+  --r-xs:6px; --r-sm:8px; --r-md:12px; --r-lg:16px; --r-pill:999px;
+  --fs-label:11px; --fs-meta:12px; --fs-small:13px; --fs-body:14px; --fs-title:15px; --fs-h2:20px; --fs-stat:24px; --fs-display:56px;
+  --size-logo:32px; --size-control:40px; --size-save:32px;
+  --lh-label:16px; --lh-meta:16px; --lh-small:20px; --lh-body:22px; --lh-title:22px; --lh-h2:28px; --lh-stat:32px; --lh-display:64px;
+  --fw-regular:400; --fw-medium:500; --fw-semibold:600; --fw-bold:700;
+  --gutter:clamp(20px, 3vw, 32px);
+}
+:root[data-theme="light"]{color-scheme:light;
+  --brand-solid:#0f1115; --on-brand:#f9fafb;
+  --bg:#f5f7fa; --panel:#ffffff; --panel-2:#ebeef2; --line:rgba(0,0,0,.06); --line-soft:rgba(0,0,0,.04);
+  --text:#0f1115; --muted:#61666b; --brand:#2563eb; --brand-2:#2563eb;
+  --ok:#22c55e; --warn:#f59e0b; --danger:#ff3b30; --accent:#2563eb;
+  --grad-a:#2563eb; --grad-b:#5686fe; --grad-c:#7c3aed;
+  --grad-a:#007aff; --grad-b:#5856d6; --grad-c:#af52de; --shadow:0 8px 24px rgba(0,0,0,.08);
+  --glow-1:transparent; --glow-2:transparent;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);
+  color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","PingFang SC",sans-serif;
+  font-size:var(--fs-body);line-height:var(--lh-body);font-weight:var(--fw-regular);
+  -webkit-font-smoothing:antialiased;min-height:100vh}
+a{color:inherit;text-decoration:none}
+.wrap{width:100%;margin:0 auto;padding:0 var(--gutter)}
+
+header{position:sticky;top:0;z-index:30;background:color-mix(in srgb,var(--bg) 78%,transparent);backdrop-filter:blur(18px);border-bottom:1px solid var(--line-soft)}
+.nav{display:flex;align-items:center;gap:var(--s-5);min-height:88px}
+.brand{display:flex;align-items:center;flex:none;transform:translateY(4px)}
+.brand .logo{height:32px;width:auto;display:block}
+:root[data-theme="dark"]{color-scheme:dark}
+:root[data-theme="dark"] .logo-light{display:none}
+:root[data-theme="light"] .logo-dark{display:none}
+
+.tabs-row{display:flex;flex-wrap:nowrap;align-items:flex-start;gap:var(--s-4);padding:16px var(--gutter) 2px;box-sizing:border-box}
+.tabs-row .sort{margin-left:auto}
+.tabs::-webkit-scrollbar{height:10px}
+.tabs::-webkit-scrollbar-track{background:transparent}
+.tabs::-webkit-scrollbar-thumb{background:color-mix(in srgb,var(--text) 20%,transparent);border-radius:999px}
+.tabs:not(.is-scrollable)::-webkit-scrollbar-thumb{background:transparent}
+.tabs{display:flex;flex-wrap:nowrap;overflow-x:scroll;padding-bottom:4px;gap:var(--s-2);flex:1 1 auto;min-width:0;scrollbar-width:thin;scrollbar-color:color-mix(in srgb,var(--text) 20%,transparent) transparent}
+.tabs::-webkit-scrollbar{display:none}
+.tab{border:0;background:color-mix(in srgb,var(--text) 5%,transparent);color:var(--muted);font-family:inherit;font-size:var(--fs-title);line-height:var(--lh-title);font-weight:var(--fw-medium);padding:6px 14px;border-radius:999px;cursor:pointer;white-space:nowrap;transition:background .15s,color .15s}
+.tab:hover{color:var(--text);background:color-mix(in srgb,var(--text) 9%,transparent)}
+.tab.on{color:var(--accent);background:color-mix(in srgb,var(--accent) 14%,transparent)}
+
+.actions{display:flex;align-items:center;gap:var(--s-2);flex:none;margin-left:auto}
+.search{display:flex;align-items:center;gap:var(--s-2);height:var(--size-control);background:var(--panel);border:1px solid var(--line);border-radius:var(--r-md);padding:0 var(--s-3)}
+.search svg{width:14px;height:14px;stroke:var(--muted);fill:none;stroke-width:1.7;flex:none}
+.search input{width:150px;background:none;border:0;outline:none;color:var(--text);font-family:inherit;font-size:var(--fs-small);line-height:var(--lh-small)}
+.search input::placeholder{color:var(--muted)}
+.icon-btn{width:var(--size-control);height:var(--size-control);display:grid;place-items:center;border:1px solid var(--line);border-radius:var(--r-md);background:var(--panel);color:var(--muted);cursor:pointer;transition:color .15s,border-color .15s}
+.icon-btn:hover{color:var(--accent);border-color:color-mix(in srgb,var(--accent) 50%,var(--line))}
+.icon-btn svg{width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:1.7}
+.cta{height:var(--size-control);border:0;border-radius:var(--r-md);background:var(--accent);color:#fff;font-family:inherit;font-size:var(--fs-small);line-height:var(--lh-small);font-weight:var(--fw-bold);padding:0 var(--s-4);cursor:pointer;transition:filter .15s,transform .15s;box-shadow:0 8px 22px rgba(124,156,255,.28)}
+.cta:hover:not(:disabled){filter:brightness(1.07);transform:translateY(-1px)}
+.cta:disabled{opacity:.6;cursor:default}
+.cta-icon{width:var(--size-control);height:var(--size-control);border:1px solid var(--line);border-radius:var(--r-md);background:var(--panel);padding:0;display:grid;place-items:center;cursor:pointer;position:relative;color:var(--muted);transition:color .15s,border-color .15s,transform .15s}
+.cta-icon:hover:not(:disabled){color:var(--accent);border-color:color-mix(in srgb,var(--accent) 50%,var(--line));transform:translateY(-1px)}
+.cta-icon:disabled{cursor:default}
+.cta-icon .radar-svg{width:20px;height:20px;display:block;fill:none;stroke:currentColor;stroke-width:1;stroke-linecap:round}
+.cta-icon .radar-svg *{vector-effect:non-scaling-stroke}
+.cta-icon .radar-svg .inner{stroke-width:1}
+.cta-icon .radar-svg .beam{stroke-width:1}
+.cta-icon .radar-svg .dot{fill:currentColor;stroke:none}
+.cta-icon .radar-svg .wedge{fill:currentColor;stroke:none;opacity:.16}
+.cta-icon .radar-svg .blip{fill:currentColor;stroke:none;opacity:.4}
+.cta-icon .scan{transform-origin:12px 12px}
+.cta-icon.searching{color:var(--accent)}
+.cta-icon.searching .scan{animation:radar-rotate 2s linear infinite}
+.cta-icon.searching .blip-a{animation:blip 2s ease-in-out infinite}
+.cta-icon.searching .blip-b{animation:blip 2s ease-in-out infinite;animation-delay:.9s}
+@keyframes radar-rotate{to{transform:rotate(360deg)}}
+@keyframes blip{0%,100%{opacity:.2}12%{opacity:1}45%{opacity:.35}}
+@media (prefers-reduced-motion:reduce){.cta-icon.searching .scan,.cta-icon.searching .blip,.cta-icon.searching .echo{animation:none}}
+
+.hero{padding-block:calc(var(--s-7) - 6px) var(--s-5)}
+.eyebrow{margin:0 0 var(--s-3);font-size:var(--fs-label);line-height:var(--lh-label);font-weight:400;letter-spacing:2px;text-transform:uppercase;color:var(--muted)}
+.hero h1{margin:0;font-size:clamp(36px,5.2vw,var(--fs-display));line-height:1.1;letter-spacing:-1.5px;font-weight:var(--fw-bold)}
+.hero h1 em{font-style:normal;background:linear-gradient(100deg,var(--grad-a),var(--grad-b) 25%,var(--grad-c) 50%,var(--grad-b) 75%,var(--grad-a));background-size:300% 100%;-webkit-background-clip:text;background-clip:text;color:transparent;animation:gradient-drift 7s linear infinite}
+@keyframes gradient-drift{from{background-position:0% 50%}to{background-position:300% 50%}}
+@media (prefers-reduced-motion:reduce){.hero h1 em{animation:none;background-position:50% 50%}}
+.stats{display:flex;gap:var(--s-6);margin-top:var(--s-5);flex-wrap:wrap}
+.stat b{display:block;font-size:var(--fs-h2);line-height:var(--lh-h2);font-weight:var(--fw-semibold);font-variant-numeric:tabular-nums}
+.stat span{font-size:var(--fs-label);line-height:var(--lh-label);font-weight:var(--fw-medium);letter-spacing:1.6px;text-transform:uppercase;color:var(--muted)}
+
+.stat-link{border:0;background:none;padding:0;font:inherit;color:inherit;cursor:pointer;text-align:left}
+.stat-link:hover b,.stat-link.on b{color:var(--accent)}
+.more{display:block;margin:var(--s-4) auto 0;border:1px solid var(--line);background:var(--panel);color:var(--muted);font:inherit;font-size:var(--fs-meta);padding:7px 14px;border-radius:999px;cursor:pointer}
+.more:hover{color:var(--text);border-color:var(--accent)}
+.detail-card{width:min(560px,100%)}
+.detail-head{display:flex;align-items:flex-start;justify-content:space-between;gap:var(--s-3);margin-bottom:var(--s-2)}
+.detail-head h2{margin:0;font-size:var(--fs-h2);line-height:var(--lh-h2);font-weight:var(--fw-semibold)}
+.detail-repo{margin:4px 0 0;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:var(--fs-small);color:var(--muted)}
+.detail-desc{margin:var(--s-3) 0;font-size:var(--fs-body);line-height:var(--lh-body);color:var(--text)}
+.detail-meta,.detail-topics{display:flex;flex-wrap:wrap;gap:var(--s-2);margin-bottom:var(--s-2)}
+.detail-meta span,.detail-topics span{font-size:var(--fs-label);line-height:var(--lh-label);color:var(--muted);border:0;background:var(--panel-2);border-radius:6px;padding:2px 8px}
+.detail-meta span.recent{color:var(--accent);background:color-mix(in srgb,var(--accent) 14%,transparent)}
+.detail-why{margin-top:var(--s-3);padding:var(--s-3);border:1px solid var(--line);border-radius:var(--r-sm);background:var(--bg)}
+.detail-why span{display:block;font-size:var(--fs-label);color:var(--muted);margin-bottom:4px}
+.detail-why p{margin:0;font-size:var(--fs-small);line-height:var(--lh-small)}
+.detail-card .modal-actions{align-items:center}
+.detail-card .btn{text-decoration:none}
+.modal[hidden]{display:none}
+.modal{position:fixed;inset:0;z-index:50;display:grid;place-items:center;padding:var(--s-4)}
+.modal-mask{position:absolute;inset:0;background:rgba(0,0,0,.5);backdrop-filter:blur(2px)}
+.modal-card{position:relative;width:min(480px,100%);max-height:calc(100vh - 48px);overflow:auto;background:var(--panel);border:1px solid var(--line);border-radius:var(--r-lg);padding:var(--s-5);box-shadow:0 24px 60px rgba(0,0,0,.35)}
+.modal-card h2{margin:0 0 var(--s-4);font-size:var(--fs-h2);line-height:var(--lh-h2);font-weight:var(--fw-semibold)}
+.field{display:block;margin-bottom:var(--s-3)}
+.field>span{display:block;margin-bottom:6px;font-size:var(--fs-meta);color:var(--muted)}
+.field input,.field textarea,.field select{width:100%;box-sizing:border-box;background:var(--bg);border:1px solid var(--line);border-radius:var(--r-sm);color:var(--text);font:inherit;font-size:var(--fs-body);padding:8px 10px}
+.field textarea{resize:vertical;min-height:64px}
+.field input:focus,.field textarea:focus,.field select:focus{outline:none;border-color:var(--accent)}
+.field-row{display:flex;gap:var(--s-2)}
+.field-row input{flex:1}
+.field-row button{flex:none;height:34px;border:1px solid var(--line);background:var(--panel);color:var(--text);border-radius:var(--r-md);padding:0 14px;font:inherit;font-size:var(--fs-small);cursor:pointer}
+.field-row button:hover{border-color:color-mix(in srgb,var(--accent) 50%,var(--line));color:var(--accent)}
+.add-hint{margin:0 0 var(--s-3);font-size:var(--fs-meta);line-height:var(--lh-meta);color:var(--muted)}
+.add-hint.error{color:var(--warn)}
+.modal-actions{display:flex;justify-content:flex-end;gap:var(--s-2);margin-top:var(--s-4)}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;height:34px;padding:0 14px;border:1px solid var(--line);border-radius:var(--r-md);background:var(--panel);color:var(--text);font:inherit;font-size:var(--fs-small);line-height:1;cursor:pointer;text-decoration:none;transition:border-color .15s,background .15s,color .15s}
+.btn:hover{border-color:color-mix(in srgb,var(--accent) 45%,var(--line))}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:#fff}
+.btn.primary:hover{filter:brightness(1.06);border-color:var(--accent)}
+.btn.primary:disabled{background:var(--panel-2);border-color:var(--line);color:var(--muted);opacity:1;cursor:default;filter:none}
+.btn.ghost{background:transparent}
+.repo-view{max-width:880px;padding:var(--s-4) 0 var(--s-7)}
+.repo-sticky{position:sticky;top:var(--header-h,88px);z-index:25;display:flex;align-items:center;gap:10px;padding:10px 0;margin:-10px 0 6px;background:color-mix(in srgb,var(--bg) 86%,transparent);backdrop-filter:blur(8px)}
+.repo-sticky .repo-back{margin-bottom:0}
+.repo-sticky-title{min-width:0;font-size:13px;font-weight:600;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;opacity:0;transform:translateY(6px) scale(1.12);transform-origin:left center;pointer-events:none;transition:opacity .2s ease,transform .2s ease}
+.repo-sticky-title.on{opacity:1;transform:none}
+.repo-back{display:inline-flex;align-items:center;gap:6px;height:32px;padding:0 12px;border:1px solid var(--line);border-radius:var(--r-md);background:var(--panel);color:var(--muted);font:inherit;font-size:var(--fs-meta);cursor:pointer;margin-bottom:var(--s-4);transition:color .15s,border-color .15s}
+.repo-back:hover{color:var(--text);border-color:var(--accent)}
+.repo-head{display:flex;align-items:flex-start;justify-content:space-between;gap:var(--s-4)}
+.repo-head>div{min-width:0}
+.repo-head h1{overflow-wrap:anywhere}
+.repo-head h1{margin:0;font-size:var(--fs-stat);line-height:1.3;font-weight:var(--fw-semibold)}
+.repo-name{margin:6px 0 0;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:var(--fs-meta);color:var(--muted)}
+.repo-desc{margin:var(--s-3) 0;font-size:var(--fs-title);line-height:1.7;color:var(--text)}
+.repo-actions{display:flex;gap:var(--s-2);margin:var(--s-3) 0;flex-wrap:wrap}
+.repo-actions .btn{text-decoration:none}
+.repo-actions .save{margin-left:0;height:34px;padding:0 16px;border-radius:var(--r-md)}
+.readme{margin-top:var(--s-5);font-size:15px;line-height:1.75;color:var(--text);word-wrap:break-word}
+.readme>*:first-child{margin-top:0}
+.readme h1,.readme h2,.readme h3{margin:1.4em 0 .6em;line-height:1.3;font-weight:var(--fw-semibold)}
+.readme h1{font-size:26px}.readme h2{font-size:21px;padding-bottom:6px;border-bottom:1px solid var(--line)}.readme h3{font-size:17px}
+.readme p{margin:.7em 0}
+.readme a{color:var(--accent);text-decoration:none}
+.readme a:hover{text-decoration:underline}
+.readme img{max-width:100%;height:auto;border-radius:8px}
+.readme pre{background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:12px;overflow:auto}
+.readme code{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:13px;background:var(--bg);padding:1px 4px;border-radius:4px}
+.readme pre code{background:none;padding:0}
+.readme blockquote{margin:.8em 0;padding:2px 0 2px 12px;border-left:3px solid var(--line);color:var(--muted)}
+.readme table{border-collapse:collapse;width:100%;margin:1em 0}
+.readme th,.readme td{border:1px solid var(--line);padding:6px 10px;text-align:left}
+.readme hr{border:0;border-top:1px solid var(--line);margin:1.4em 0}
+body.repo-mode .hero{display:none}
+.stats-row{display:flex;align-items:flex-end;justify-content:space-between;gap:var(--s-5);flex-wrap:wrap}
+.sort{position:relative;display:flex;align-items:center}
+.section-head .sub-filter{margin-left:auto;position:relative;display:flex;align-items:center}
+.section-head .sub-filter .sort-menu{left:auto;right:0}
+.sort-btn{display:flex;align-items:center;gap:6px;white-space:nowrap;flex:none;height:34px;border:1px solid var(--line);background:var(--panel);color:var(--text);font:inherit;font-size:var(--fs-small);line-height:1;padding:0 12px;border-radius:var(--r-md);cursor:pointer;transition:border-color .15s,color .15s}
+.sort-btn:hover{border-color:var(--line-soft);color:var(--text)}
+.sort-btn svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round;margin-left:2px}
+.sort-menu{position:absolute;top:calc(100% + 6px);right:0;z-index:30;min-width:132px;margin:0;padding:4px;list-style:none;background:var(--panel);border:1px solid var(--line);border-radius:var(--r-md);box-shadow:0 12px 32px rgba(0,0,0,.35)}
+.sort-menu[hidden]{display:none}
+.sort-menu li{position:relative;padding:7px 10px 7px 28px;border-radius:var(--r-sm);font-size:var(--fs-meta);line-height:var(--lh-meta);color:var(--text);cursor:pointer;white-space:nowrap}
+.sort-menu li:hover{background:var(--panel-2)}
+.sort-menu li[aria-selected="true"]{color:var(--accent);background:color-mix(in srgb,var(--accent) 12%,transparent)}
+.sort-menu li[aria-selected="true"]::before{content:"✓";position:absolute;left:10px;font-size:12px;line-height:1}
+.saved-head{display:flex;align-items:center;gap:var(--s-3);margin:var(--s-5) 0 var(--s-4)}
+.saved-head h2{margin:0;font-size:var(--fs-h2);line-height:var(--lh-h2);font-weight:var(--fw-semibold)}
+.saved-head .back{margin-left:auto;border:1px solid var(--line);background:var(--panel);color:var(--muted);font:inherit;font-size:var(--fs-meta);line-height:var(--lh-meta);padding:4px 10px;border-radius:var(--r-sm);cursor:pointer}
+.saved-head .back:hover{color:var(--text);border-color:var(--accent)}
+.save.danger,.btn.danger{color:var(--danger);border-color:color-mix(in srgb,var(--danger) 55%,transparent);background:color-mix(in srgb,var(--danger) 12%,transparent)}
+.save.danger:hover,.btn.danger:hover{background:color-mix(in srgb,var(--danger) 20%,transparent);color:var(--danger)}
+.save.remove{border-color:color-mix(in srgb,var(--warn) 40%,transparent);background:color-mix(in srgb,var(--warn) 10%,transparent);color:var(--warn)}
+.save.remove:hover:not(:disabled){background:color-mix(in srgb,var(--warn) 18%,transparent);color:var(--warn)}
+.save.remove.danger{color:var(--danger);border-color:color-mix(in srgb,var(--danger) 60%,transparent);background:color-mix(in srgb,var(--danger) 14%,transparent)}
+.save.remove.danger:hover:not(:disabled){background:color-mix(in srgb,var(--danger) 22%,transparent);color:var(--danger)}
+main{padding:var(--s-2) 0 var(--s-5)}
+.section{padding-top:var(--s-6)}
+.section-head{display:flex;align-items:center;gap:var(--s-3);min-height:34px;margin-bottom:var(--s-4)}
+.section-head h2{margin:0;font-size:var(--fs-h2);line-height:var(--lh-h2);font-weight:var(--fw-semibold);letter-spacing:.2px}
+.count{font-size:var(--fs-meta);line-height:var(--lh-meta);font-weight:var(--fw-medium);letter-spacing:1px;text-transform:uppercase;color:var(--muted);border:1px solid var(--line);border-radius:var(--r-pill);padding:2px var(--s-2);background:var(--panel)}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(330px,1fr));gap:var(--s-4)}
+
+.card{cursor:pointer}
+.card:focus-visible{outline:none}
+.card{display:flex;flex-direction:column;gap:var(--s-2);background:var(--panel);border:1px solid var(--line);border-radius:var(--r-lg);padding:var(--s-4);transition:transform .18s,box-shadow .18s,border-color .18s}
+.card:hover,.card:focus-visible{transform:translateY(-2px);border-color:var(--line);box-shadow:0 10px 22px color-mix(in srgb,#000 22%,transparent),0 0 16px color-mix(in srgb,var(--accent) 16%,transparent)}
+.card-top{display:flex;align-items:flex-start;justify-content:space-between;gap:var(--s-3)}
+.card h3{margin:0;font-size:var(--fs-title);line-height:var(--lh-title);font-weight:var(--fw-semibold);overflow-wrap:anywhere;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.card h3 a:hover{color:var(--accent)}
+.card h3 .repo{display:block;margin-top:2px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:var(--fs-label);line-height:var(--lh-label);font-weight:var(--fw-regular);letter-spacing:.2px;color:var(--muted)}
+.stars{font-size:var(--fs-meta);line-height:var(--lh-meta);font-weight:var(--fw-medium);font-variant-numeric:tabular-nums;white-space:nowrap;color:var(--warn);border:1px solid color-mix(in srgb,var(--warn) 26%,transparent);background:color-mix(in srgb,var(--warn) 8%,transparent);border-radius:var(--r-pill);padding:2px var(--s-2)}
+.desc{margin:0;font-size:var(--fs-small);line-height:var(--lh-small);font-weight:var(--fw-regular);color:var(--muted);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;min-height:calc(var(--lh-small) * 2)}
+.meta{display:flex;gap:var(--s-2);flex-wrap:wrap;font-size:var(--fs-meta);line-height:var(--lh-meta);color:var(--muted)}
+.chip{border:0;border-radius:6px;padding:2px 8px;background:var(--panel-2);color:var(--muted);font-size:var(--fs-label);line-height:1.4}
+.chip.sub{background:color-mix(in srgb,var(--accent) 14%,transparent);color:var(--accent);font-weight:600}
+.chip.recent{background:color-mix(in srgb,var(--accent) 14%,transparent);color:var(--accent);font-weight:600}
+.card-foot{display:flex;align-items:center;gap:var(--s-3);margin-top:auto;padding-top:var(--s-1)}
+.gh{display:inline-flex;align-items:center;gap:4px;font-size:var(--fs-meta);line-height:var(--lh-meta);font-weight:var(--fw-medium);color:var(--muted);background:color-mix(in srgb,var(--text) 4%,transparent);border:1px solid var(--line);border-radius:999px;padding:3px 10px;transition:background .15s,border-color .15s,color .15s}
+.gh:hover{color:var(--accent);background:color-mix(in srgb,var(--accent) 10%,transparent);border-color:color-mix(in srgb,var(--accent) 30%,transparent)}
+.save{margin-left:auto;height:var(--size-save);padding:0 var(--s-4);font-family:inherit;font-size:var(--fs-small);line-height:var(--lh-small);font-weight:var(--fw-semibold);border:1px solid color-mix(in srgb,var(--ok) 40%,transparent);background:color-mix(in srgb,var(--ok) 12%,transparent);color:var(--ok);border-radius:var(--r-sm);cursor:pointer;transition:background .15s,color .15s}
+.save:hover:not(:disabled){background:color-mix(in srgb,var(--ok) 22%,transparent);color:color-mix(in srgb,var(--ok) 82%,var(--text))}
+.save.done{border-color:var(--line);background:transparent;color:var(--muted);cursor:default}
+.save:disabled{opacity:1}
+
+.empty{padding:var(--s-8) 0;text-align:center;color:var(--muted);font-size:var(--fs-body);line-height:var(--lh-body)}
+.empty b{display:block;color:var(--text);font-size:var(--fs-title);line-height:var(--lh-title);font-weight:var(--fw-semibold);margin-bottom:var(--s-2)}
+
+
+.toast{position:fixed;left:50%;bottom:var(--s-6);transform:translate(-50%,var(--s-4));background:var(--panel-2);border:1px solid var(--line);border-radius:var(--r-md);padding:var(--s-2) var(--s-5);font-size:var(--fs-small);line-height:var(--lh-small);opacity:0;transition:opacity .2s,transform .2s;pointer-events:none;z-index:50;box-shadow:var(--shadow)}
+.toast.show{opacity:1;transform:translate(-50%,0)}
+.spin{display:inline-block;width:12px;height:12px;border:2px solid rgba(10,13,20,.25);border-top-color:#0a0d14;border-radius:50%;animation:sp .8s linear infinite;vertical-align:-1px;margin-right:var(--s-1)}
+@keyframes sp{to{transform:rotate(360deg)}}
+
+@media (max-width:820px){
+  .nav{min-height:88px;flex-wrap:nowrap;padding-block:var(--s-3);gap:var(--s-3)}
+  .tabs{flex:1 1 auto;min-width:0}
+  .search{flex:1 1 90px;min-width:0;max-width:none}
+  .brand .logo{height:26px}
+  .actions{flex-wrap:nowrap;flex:1 1 auto;min-width:0}
+  .hero{padding-block:var(--s-7) var(--s-5)}
+  .section{padding-top:var(--s-6)}
+}
+*{scrollbar-width:thin;scrollbar-color:color-mix(in srgb,var(--text) 22%,transparent) transparent}
+::-webkit-scrollbar{width:10px;height:10px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:color-mix(in srgb,var(--text) 20%,transparent);border-radius:999px;border:2px solid transparent;background-clip:padding-box}
+@media (max-width:420px){.brand .logo{height:22px}.actions{gap:6px}.actions .icon-btn,.actions .cta-icon{width:34px;height:34px}}
+.repo-subs{display:flex;flex-wrap:wrap;align-items:center;gap:var(--s-2);margin-top:var(--s-3)}
+.repo-subs-label{font-size:var(--fs-small);color:var(--muted)}
+.sub-toggle{border:1px solid var(--line);background:var(--panel);color:var(--muted);font-family:inherit;font-size:var(--fs-small);line-height:1.4;padding:4px 12px;border-radius:999px;cursor:pointer;transition:background .15s,color .15s,border-color .15s}
+.sub-toggle[data-on="1"]{background:color-mix(in srgb,var(--accent) 14%,transparent);border-color:color-mix(in srgb,var(--accent) 45%,transparent);color:var(--accent)}
+</style>
+</head>
+<body>
+<header>
+  <div class="wrap nav">
+    <a class="brand" href="/" aria-label="OpenGems">
+      <img class="logo logo-light" src="/assets/opengems-horizontal-light.svg" alt="OpenGems">
+      <img class="logo logo-dark" src="/assets/opengems-horizontal-dark.svg" alt="" aria-hidden="true" />
+    </a>
+    <div class="actions">
+      <label class="search">
+        <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"></circle><path d="m20 20-3.5-3.5"></path></svg>
+        <input id="q" type="search" placeholder="搜索" autocomplete="off">
+      </label>
+      <button class="icon-btn" id="open-add" type="button" title="添加收藏" aria-label="添加收藏">
+        <svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"></path></svg>
+      </button>
+      <button class="icon-btn" id="theme" title="切换主题" aria-label="切换主题">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"></circle><path d="M12 3v2M12 19v2M5 12H3M21 12h-2M6.3 6.3 4.9 4.9M19.1 19.1l-1.4-1.4M6.3 17.7l-1.4 1.4M19.1 4.9l-1.4 1.4"></path></svg>
+      </button>
+      <button class="cta-icon" id="discover" title="发现" aria-label="发现">
+        <svg class="radar-svg" viewBox="0 0 24 24" aria-hidden="true">
+          <circle class="outer" cx="12" cy="12" r="9"></circle>
+          <circle class="inner" cx="12" cy="12" r="5.2"></circle>
+          <g class="scan">
+            <path class="wedge" d="M12 12 L12 3 A9 9 0 0 1 21 12 Z"></path>
+            <path class="beam" d="M12 12 L21 12"></path>
+          </g>
+          <circle class="dot" cx="12" cy="12" r="1.1"></circle>
+          <circle class="blip blip-a" cx="15.4" cy="8.3" r="0.8"></circle>
+          <circle class="blip blip-b" cx="8.7" cy="14.4" r="0.7"></circle>
+        </svg>
+      </button>
+    </div>
+  </div>
+  <div class="wrap tabs-row"><nav class="tabs" id="tabs"></nav>
+    <div class="sort" id="sort">
+      <button class="sort-btn" id="sort-btn" type="button" aria-haspopup="listbox" aria-expanded="false">
+        <span id="sort-label">星标最多</span>
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"></path></svg>
+      </button>
+      <ul class="sort-menu" id="sort-menu" role="listbox" hidden>
+        <li role="option" data-value="stars" aria-selected="true">星标最多</li>
+        <li role="option" data-value="discovered" aria-selected="false">最新发现</li>
+        <li role="option" data-value="updated" aria-selected="false">最近更新</li>
+      </ul>
+  </div>
+</header>
+
+<section class="wrap hero">
+  <p class="eyebrow">DISCOVER · COLLECT · EXPLORE</p>
+  <h1>探索<em>值得收藏</em>的开源世界。</h1>
+  </div>
+</section>
+
+
+<main class="wrap" id="main"></main>
+
+
+
+<div class="modal" id="detail-modal" hidden>
+  <div class="modal-mask" data-close></div>
+  <div class="modal-card detail-card" role="dialog" aria-modal="true" aria-labelledby="detail-title">
+    <div class="detail-head">
+      <div>
+        <h2 id="detail-title"></h2>
+        <p class="detail-repo" id="detail-repo"></p>
+      </div>
+      <span class="stars" id="detail-stars"></span>
+    </div>
+    <p class="detail-desc" id="detail-desc"></p>
+    <div class="detail-meta" id="detail-meta"></div>
+    <div class="detail-topics" id="detail-topics"></div>
+    <div class="detail-why" id="detail-why" hidden>
+      <span>为什么值得收</span>
+      <p id="detail-why-text"></p>
+    </div>
+    <div class="modal-actions">
+      <button class="btn ghost" id="detail-close" type="button">关闭</button>
+      <a class="btn" id="detail-github" target="_blank" rel="noreferrer noopener">在 GitHub 打开 ↗</a>
+      <button class="btn primary" id="detail-save" type="button">收藏</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal" id="add-modal" hidden>
+  <div class="modal-mask" data-close></div>
+  <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="add-heading">
+    <h2 id="add-heading">添加收藏</h2>
+    <label class="field">
+      <span>GitHub 链接</span>
+      <div class="field-row">
+        <input id="add-url" type="url" placeholder="https://github.com/owner/repo" autocomplete="off">
+        <button id="add-lookup" type="button">生成</button>
+      </div>
+    </label>
+    <p class="add-hint" id="add-hint">粘贴仓库链接后点「生成」，会自动填好标题、简介和分类。</p>
+    <div id="add-preview" hidden>
+      <label class="field"><span>中文标题</span><input id="add-title-input" type="text"></label>
+      <label class="field"><span>一句话简介</span><input id="add-desc-input" type="text"></label>
+      <label class="field"><span>为什么值得收</span><textarea id="add-why-input" rows="3"></textarea></label>
+      <div class="field-row">
+        <label class="field" style="flex:1"><span>语言</span><input id="add-language" type="text" placeholder="如 TypeScript"></label>
+        <label class="field" style="flex:1"><span>协议</span><input id="add-license" type="text" placeholder="如 MIT"></label>
+      </div>
+      <label class="field"><span>话题（逗号分隔，可空）</span><input id="add-topics" type="text" placeholder="如 react, ui, components"></label>
+      <label class="field"><span>分类</span>
+        <select id="add-category">
+          <option value="design">设计</option>
+          <option value="creative">创意</option>
+          <option value="fun">趣味</option>
+          <option value="tech">技术</option>
+        </select>
+      </label>
+    </div>
+    <div class="modal-actions">
+      <button class="btn ghost" id="add-cancel" type="button">取消</button>
+      <button class="btn primary" id="add-confirm" type="button" disabled>确认添加</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+let data = null
+let saved = new Set()
+let savedList = []
+let mode = 'candidates'
+let sortMode = 'stars'
+let minStars = 0
+let categoryMin = {}
+let limits = {}
+const PAGE = 20
+let tab = 'all'
+let query = ''
+let subFilter = '全部'
+const SUB_OPTIONS = ['全部', '图标', '动效', '组件库', '设计系统']
+let subMap = {}
+
+function subsOf(item) {
+  return subMap[item.fullName] || []
+}
+
+const main = document.getElementById('main')
+const tabsEl = document.getElementById('tabs')
+const toastEl = document.getElementById('toast')
+
+function toast(message) {
+  toastEl.textContent = message
+  toastEl.classList.add('show')
+  clearTimeout(toast.timer)
+  toast.timer = setTimeout(() => toastEl.classList.remove('show'), 2400)
+}
+
+function allItems() {
+  if (!data) return []
+  return data.categories.flatMap((category) => category.items.map((item) => ({ ...item, categoryId: category.id, categoryLabel: category.label })))
+}
+
+function renderTabs() {
+  if (!data) return
+  const entries = [{ id: 'saved', label: '已收藏' }, { id: 'all', label: '全部' }]
+  for (const category of data.categories) entries.push({ id: category.id, label: category.label })
+  tabsEl.replaceChildren()
+  for (const entry of entries) {
+    const active = entry.id === 'saved' ? mode === 'saved' : (mode !== 'saved' && tab === entry.id)
+    const button = document.createElement('button')
+    button.className = 'tab' + (active ? ' on' : '')
+    button.textContent = entry.label
+    button.onclick = () => {
+      if (entry.id === 'saved') { mode = 'saved'; tab = 'all' }
+      else { mode = 'candidates'; tab = entry.id }
+      subFilter = '全部'
+      window.scrollTo(0, 0)
+      render()
+    }
+    tabsEl.appendChild(button)
+  }
+  requestAnimationFrame(() => tabsEl.classList.toggle('is-scrollable', tabsEl.scrollWidth > tabsEl.clientWidth + 1))
+}
+
+window.addEventListener('resize', () => {
+  if (tabsEl) tabsEl.classList.toggle('is-scrollable', tabsEl.scrollWidth > tabsEl.clientWidth + 1)
+})
+
+function armUnsave(button) {
+  if (button.dataset.armed === '1') return true
+  button.dataset.armed = '1'
+  button.textContent = '确认取消'
+  button.classList.add('danger')
+  clearTimeout(button._armTimer)
+  button._armTimer = setTimeout(() => {
+    button.dataset.armed = '0'
+    button.textContent = '取消收藏'
+    button.classList.remove('danger')
+  }, 3000)
+  return false
+}
+
+function disarmUnsave(button) {
+  clearTimeout(button._armTimer)
+  button.dataset.armed = '0'
+  button.textContent = '取消收藏'
+  button.classList.remove('danger')
+}
+
+function cardFor(item) {
+  const card = document.createElement('article')
+  card.className = 'card'
+  card.tabIndex = 0
+  card.setAttribute('role', 'link')
+  card.setAttribute('aria-label', '打开 ' + item.fullName)
+  card.addEventListener('click', (event) => {
+    if (event.target.closest('button')) return
+    if (event.target.closest('a.gh')) return
+    if (event.target.closest('a')) { event.preventDefault(); openRepo(item.fullName); return }
+    openRepo(item.fullName)
+  })
+  card.addEventListener('keydown', (event) => {
+    if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); openRepo(item.fullName) }
+  })
+  const updated = item.pushedAt ? '更新 ' + String(item.pushedAt).slice(5, 10).replace('-', '/') : ''
+  const top = document.createElement('div')
+  top.className = 'card-top'
+  const h3 = document.createElement('h3')
+  const link = document.createElement('a')
+  link.href = item.url; link.target = '_blank'; link.rel = 'noreferrer noopener'
+  link.textContent = item.titleZh || item.fullName
+  h3.appendChild(link)
+  if (item.titleZh) {
+    const repo = document.createElement('span')
+    repo.className = 'repo'
+    repo.textContent = item.fullName
+    h3.appendChild(repo)
+  }
+  const stars = document.createElement('span')
+  stars.className = 'stars'
+  stars.textContent = '★ ' + Number(item.stars || 0).toLocaleString()
+  top.append(h3, stars)
+
+  const desc = document.createElement('p')
+  desc.className = 'desc'
+  desc.textContent = item.descZh || item.description || '（没有描述）'
+
+  const meta = document.createElement('div')
+  meta.className = 'meta'
+  if (updated) {
+    const stampTime = new Date(item.pushedAt).getTime()
+    if (stampTime > 0 && Date.now() - stampTime <= 7 * 24 * 60 * 60 * 1000) {
+      const recentChip = document.createElement('span')
+      recentChip.className = 'chip recent'
+      recentChip.textContent = updated
+      meta.appendChild(recentChip)
+    }
+  }
+  if (item.categoryId === 'design') {
+    for (const sub of subsOf(item)) {
+      const chip = document.createElement('span')
+      chip.className = 'chip sub'
+      chip.textContent = sub
+      meta.appendChild(chip)
+    }
+  }
+  for (const text of [item.language, item.license || '无协议', (item.topics || [])[0]]) {
+    if (!text) continue
+    const chip = document.createElement('span')
+    chip.className = 'chip'
+    chip.textContent = text
+    meta.appendChild(chip)
+  }
+
+  const foot = document.createElement('div')
+  foot.className = 'card-foot'
+  const gh = document.createElement('a')
+  gh.className = 'gh'
+  gh.href = item.url; gh.target = '_blank'; gh.rel = 'noreferrer noopener'
+  gh.textContent = 'GitHub ↗'
+  const button = document.createElement('button')
+  if (item.savedFile) {
+    button.className = 'save done'
+    button.textContent = '已收藏'
+    button.disabled = true
+    foot.append(gh, button)
+    card.append(top, desc, meta, foot)
+    return card
+  }
+  const isSaved = saved.has(item.fullName)
+  if (isSaved) {
+    button.className = 'save done'
+    button.textContent = '已收藏'
+    button.disabled = true
+    foot.append(gh, button)
+    card.append(top, desc, meta, foot)
+    return card
+  }
+  button.className = 'save'
+  button.textContent = '收藏'
+  button.onclick = async () => {
+    button.disabled = true
+    button.textContent = '收藏中…'
+    try {
+      const response = await fetch('/api/save', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ n: item.n }) })
+      const out = await response.json()
+      if (out.ok || out.reason === 'exists') {
+        toast(out.ok ? '已收藏 ' + item.fullName : '这张卡已经在 inbox 里了')
+        await load()
+      } else {
+        button.disabled = false
+        button.textContent = '重试'
+        toast('收藏失败：' + (out.reason || '未知原因'))
+      }
+    } catch (error) {
+      button.disabled = false
+      button.textContent = '重试'
+      toast('收藏失败：' + error.message)
+    }
+  }
+  foot.append(gh, button)
+  card.append(top, desc, meta, foot)
+  return card
+}
+
+function sortItems(list) {
+  const copy = [...list]
+  copy.sort((a, b) => {
+    if (sortMode === 'discovered') {
+      const diff = String(b.discoveredAt || '').localeCompare(String(a.discoveredAt || ''))
+      if (diff) return diff
+    }
+    if (sortMode === 'updated') {
+      const diff = String(b.pushedAt || '').localeCompare(String(a.pushedAt || ''))
+      if (diff) return diff
+    }
+    return (b.stars || 0) - (a.stars || 0)
+  })
+  return copy
+}
+
+function render() {
+  if (!data) return
+  renderTabs()
+  const savedMode = mode === 'saved'
+  const source = savedMode ? savedList.map(savedAsCandidate) : allItems()
+  const items = sortItems(source.filter((item) => {
+    if (!savedMode) {
+      const floor = Number(categoryMin[item.categoryId] ?? minStars ?? 0)
+      if ((item.stars || 0) < floor && !saved.has(item.fullName)) return false
+    }
+    return (tab === 'all' || item.categoryId === tab) && (tab !== 'design' || subFilter === '全部' || subsOf(item).includes(subFilter)) &&
+      (!query || (item.fullName + ' ' + (item.titleZh || '') + ' ' + (item.descZh || '') + ' ' + (item.description || '')).toLowerCase().includes(query))
+  }))
+  const qualified = allItems().filter((item) => {
+    const floor = Number(categoryMin[item.categoryId] ?? minStars ?? 0)
+    return (item.stars || 0) >= floor || saved.has(item.fullName)
+  })
+  main.replaceChildren()
+
+  if (!items.length) {
+    const empty = document.createElement('div')
+    empty.className = 'empty'
+    const title = document.createElement('b')
+    title.textContent = savedMode ? '还没有收藏' : '这里还空着'
+    empty.append(title, savedMode ? '回到候选列表，点卡片上的「收藏」。' : '试试「发现」，或者清空搜索。')
+    main.appendChild(empty)
+    return
+  }
+
+  const assignedSubs = new Set()
+  for (const item of allItems()) {
+    if (item.categoryId !== 'design') continue
+    for (const sub of subsOf(item)) assignedSubs.add(sub)
+  }
+  const subOptions = SUB_OPTIONS.filter((option) => option === '全部' || assignedSubs.has(option))
+  if (!subOptions.includes(subFilter)) subFilter = '全部'
+
+  const groups = tab === 'all'
+    ? data.categories.map((category) => ({ id: category.id, label: category.label, items: items.filter((item) => item.categoryId === category.id) })).filter((group) => group.items.length)
+    : [{ id: tab, label: (data.categories.find((category) => category.id === tab) || {}).label || '', items }]
+  if (tab === 'all') {
+    const known = new Set(data.categories.map((category) => category.id))
+    const orphans = items.filter((item) => !known.has(item.categoryId))
+    if (orphans.length) groups.push({ id: 'other', label: '未分类', items: orphans })
+  }
+
+  for (const group of groups) {
+    const section = document.createElement('section')
+    section.className = 'section'
+    const head = document.createElement('div')
+    head.className = 'section-head'
+    const h2 = document.createElement('h2')
+    h2.textContent = group.label
+    const count = document.createElement('span')
+    count.className = 'count'
+    count.textContent = group.items.length + ' 个'
+    head.append(h2, count)
+    if (group.id === 'design' && assignedSubs.size) {
+      const filter = document.createElement('div')
+      filter.className = 'sub-filter'
+      const fbtn = document.createElement('button')
+      fbtn.className = 'sort-btn'
+      fbtn.type = 'button'
+      const flabel = document.createElement('span')
+      flabel.textContent = subFilter
+      const fcaret = document.createElementNS('http://www.w3.org/2000/svg', 'svg')
+      fcaret.setAttribute('viewBox', '0 0 24 24')
+      fcaret.setAttribute('aria-hidden', 'true')
+      const fpath = document.createElementNS('http://www.w3.org/2000/svg', 'path')
+      fpath.setAttribute('d', 'm6 9 6 6 6-6')
+      fcaret.appendChild(fpath)
+      fbtn.append(flabel, fcaret)
+      const fmenu = document.createElement('ul')
+      fmenu.className = 'sort-menu'
+      fmenu.hidden = true
+      for (const option of subOptions) {
+        const li = document.createElement('li')
+        li.textContent = option
+        li.setAttribute('data-on', option === subFilter ? '1' : '0')
+        li.onclick = () => { subFilter = option; render() }
+        fmenu.appendChild(li)
+      }
+      fbtn.onclick = (event) => {
+        event.stopPropagation()
+        const open = fmenu.hidden
+        fmenu.hidden = !open
+        fbtn.setAttribute('aria-expanded', String(open))
+      }
+      filter.append(fbtn, fmenu)
+      head.appendChild(filter)
+    }
+    const grid = document.createElement('div')
+    grid.className = 'grid'
+    const limit = limits[group.id] ?? PAGE
+    const visible = group.items.slice(0, limit)
+    const rest = group.items.slice(limit)
+    const extraSaved = rest.filter((item) => saved.has(item.fullName))
+    for (const item of [...visible, ...extraSaved]) grid.appendChild(cardFor(item))
+    section.append(head, grid)
+    if (rest.length > 0) {
+      const more = document.createElement('button')
+      more.className = 'more'
+      more.textContent = '查看更多（还有 ' + rest.length + ' 个）'
+      more.onclick = () => { limits[group.id] = limit + PAGE; render() }
+      section.appendChild(more)
+    }
+    main.appendChild(section)
+  }
+}
+
+async function load() {
+  const [candidatesResponse, savedResponse, subsResponse] = await Promise.all([
+    fetch('/api/candidates'),
+    fetch('/api/saved').catch(() => null),
+    fetch('/api/subcategories').catch(() => null),
+  ])
+  data = await candidatesResponse.json()
+  minStars = Number(data.minStars ?? 0)
+  categoryMin = data.categoryMin ?? {}
+  const savedOut = savedResponse ? await savedResponse.json().catch(() => ({})) : {}
+  savedList = Array.isArray(savedOut.items) ? savedOut.items : []
+  saved = new Set(savedList.map((item) => item.fullName))
+  const subsOut = subsResponse ? await subsResponse.json().catch(() => ({})) : {}
+  subMap = subsOut.items && typeof subsOut.items === 'object' ? subsOut.items : {}
+  render()
+}
+
+function savedAsCandidate(item) {
+  return {
+    fullName: item.fullName,
+    url: item.url,
+    stars: item.stars,
+    language: item.language,
+    license: item.license,
+    titleZh: item.titleZh,
+    descZh: item.descZh,
+    topics: [],
+    pushedAt: '',
+    categoryId: item.category,
+    savedFile: item.file,
+    n: null,
+  }
+}
+
+let repoCleanup = null
+
+function syncHeaderHeight() {
+  const header = document.querySelector('header')
+  if (!header) return
+  document.documentElement.style.setProperty('--header-h', Math.round(header.getBoundingClientRect().height) + 'px')
+}
+window.addEventListener('resize', syncHeaderHeight)
+syncHeaderHeight()
+
+
+
+function openRepo(fullName) { location.hash = '#/repo/' + encodeURIComponent(fullName) }
+
+function rewriteReadme(html, fullName) {
+  if (!html) return ''
+  const doc = new DOMParser().parseFromString(html, 'text/html')
+  doc.querySelectorAll('script,style,iframe,form,object,embed').forEach((node) => node.remove())
+  doc.querySelectorAll('*').forEach((node) => {
+    for (const attr of [...node.attributes]) {
+      if (/^on/i.test(attr.name)) node.removeAttribute(attr.name)
+    }
+  })
+  const base = 'https://github.com/' + fullName + '/'
+  doc.querySelectorAll('img[src],a[href],source[srcset]').forEach((node) => {
+    const attr = node.hasAttribute('src') ? 'src' : node.hasAttribute('href') ? 'href' : 'srcset'
+    const value = node.getAttribute(attr)
+    if (!value || /^(https?:|mailto:|#|data:)/i.test(value)) return
+    node.setAttribute(attr, new URL(value, base).href)
+  })
+  return doc.body.innerHTML
+}
+
+async function renderRepo(fullName) {
+  document.body.classList.add('repo-mode')
+  const item = allItems().find((entry) => entry.fullName.toLowerCase() === fullName.toLowerCase())
+  const wrap = document.createElement('section')
+  wrap.className = 'repo-view'
+  const sticky = document.createElement('div')
+  sticky.className = 'repo-sticky'
+  const back = document.createElement('button')
+  back.className = 'repo-back'
+  back.textContent = '← 返回列表'
+  back.onclick = () => { location.hash = '' }
+  const stickyTitle = document.createElement('span')
+  stickyTitle.className = 'repo-sticky-title'
+  sticky.appendChild(back)
+  sticky.appendChild(stickyTitle)
+  wrap.appendChild(sticky)
+  const loading = document.createElement('p')
+  loading.className = 'add-hint'
+  loading.textContent = '正在打开 ' + fullName + ' …'
+  wrap.appendChild(loading)
+  main.replaceChildren(wrap)
+
+  let out = null
+  try {
+    const response = await fetch('/api/repo?name=' + encodeURIComponent(fullName))
+    out = await response.json()
+  } catch (error) {}
+  if (!out || !out.ok) {
+    loading.textContent = '这个仓库加载失败，稍后再试，或直接在 GitHub 打开。'
+    loading.classList.add('error')
+    if (item) {
+      const link = document.createElement('a')
+      link.className = 'btn'
+      link.href = item.url
+      link.target = '_blank'
+      link.rel = 'noreferrer noopener'
+      link.textContent = '在 GitHub 打开 ↗'
+      wrap.appendChild(link)
+    }
+    return
+  }
+  const repo = out.repo
+  loading.remove()
+  const head = document.createElement('div')
+  head.className = 'repo-head'
+  const headLeft = document.createElement('div')
+  const h1 = document.createElement('h1')
+  h1.textContent = (item && item.titleZh) || repo.fullName
+  stickyTitle.textContent = h1.textContent
+  if (repoCleanup) repoCleanup()
+  const syncSticky = () => { if (window.scrollY <= 0) { stickyTitle.classList.remove('on'); return } const bar = sticky.getBoundingClientRect(); stickyTitle.classList.toggle('on', h1.getBoundingClientRect().bottom < bar.bottom + 2) }
+  window.addEventListener('scroll', syncSticky, { passive: true })
+  syncSticky()
+  repoCleanup = () => window.removeEventListener('scroll', syncSticky)
+  const name = document.createElement('p')
+  name.className = 'repo-name'
+  name.textContent = repo.fullName
+  headLeft.append(h1, name)
+  const stars = document.createElement('span')
+  stars.className = 'stars'
+  stars.textContent = '★ ' + Number(repo.stars || 0).toLocaleString()
+  head.append(headLeft, stars)
+  wrap.appendChild(head)
+
+  const desc = document.createElement('p')
+  desc.className = 'repo-desc'
+  desc.textContent = (item && item.descZh) || repo.description || ''
+  wrap.appendChild(desc)
+
+  const meta = document.createElement('div')
+  meta.className = 'detail-meta'
+  const updatedText = repo.pushedAt ? '更新 ' + String(repo.pushedAt).slice(5, 10).replace('-', '/') : ''
+  const updatedTime = repo.pushedAt ? new Date(repo.pushedAt).getTime() : 0
+  const isRecent = updatedTime > 0 && Date.now() - updatedTime <= 7 * 24 * 60 * 60 * 1000
+  const metaValues = [updatedText, repo.language, repo.license]
+  for (const value of metaValues.filter(Boolean)) {
+    const span = document.createElement('span')
+    span.textContent = value
+    if (value === updatedText && isRecent) span.className = 'recent'
+    meta.appendChild(span)
+  }
+  wrap.appendChild(meta)
+
+  const topics = document.createElement('div')
+  topics.className = 'detail-topics'
+  for (const value of (repo.topics || []).slice(0, 8)) {
+    const span = document.createElement('span')
+    span.textContent = value
+    topics.appendChild(span)
+  }
+  wrap.appendChild(topics)
+
+  const actions = document.createElement('div')
+  actions.className = 'repo-actions'
+  const github = document.createElement('a')
+  github.className = 'btn'
+  github.href = repo.url
+  github.target = '_blank'
+  github.rel = 'noreferrer noopener'
+  github.textContent = '在 GitHub 打开 ↗'
+  actions.appendChild(github)
+  if (item) {
+    const save = document.createElement('button')
+    const savedEntry = savedList.find((entry) => String(entry.fullName).toLowerCase() === String(item.fullName).toLowerCase())
+    if (savedEntry) {
+      save.className = 'btn'
+      save.textContent = '取消收藏'
+      save.onclick = async () => {
+        if (!armUnsave(save)) return
+        save.disabled = true
+        toast('已取消收藏')
+        try {
+          const response = await fetch('/api/unsave', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ file: savedEntry.file }) })
+          const result = await response.json().catch(() => ({}))
+          if (!result.ok) toast('取消收藏失败，稍后再试')
+        } catch (error) {
+          toast('网络异常，稍后再试')
+        }
+        await load()
+        renderRepo(item.fullName)
+      }
+    } else {
+      save.className = 'save'
+      save.textContent = '收藏'
+      save.onclick = async () => {
+        save.disabled = true
+        const response = await fetch('/api/save', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ n: item.n }) })
+        const result = await response.json().catch(() => ({}))
+        if (result.ok || result.reason === 'exists') { await load(); renderRepo(item.fullName) }
+        else { save.disabled = false; toast('收藏失败，稍后再试') }
+      }
+    }
+    actions.appendChild(save)
+  }
+  wrap.appendChild(actions)
+
+  if (item && item.categoryId === 'design') {
+    const subsBar = document.createElement('div')
+    subsBar.className = 'repo-subs'
+    const subsLabel = document.createElement('span')
+    subsLabel.className = 'repo-subs-label'
+    subsLabel.textContent = '分类'
+    subsBar.appendChild(subsLabel)
+    for (const option of SUB_OPTIONS.slice(1)) {
+      const toggle = document.createElement('button')
+      toggle.type = 'button'
+      toggle.className = 'sub-toggle'
+      toggle.dataset.on = subsOf(item).includes(option) ? '1' : '0'
+      toggle.textContent = option
+      toggle.onclick = async () => {
+        const current = new Set(subsOf(item))
+        if (current.has(option)) current.delete(option)
+        else current.add(option)
+        const subs = [...current]
+        if (subs.length) subMap[item.fullName] = subs
+        else delete subMap[item.fullName]
+        toggle.dataset.on = current.has(option) ? '1' : '0'
+        try {
+          const response = await fetch('/api/subcategories', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ fullName: item.fullName, subs }) })
+          const result = await response.json().catch(() => ({}))
+          if (result.items) subMap = result.items
+        } catch (error) { toast('保存分类失败，稍后再试') }
+      }
+      subsBar.appendChild(toggle)
+    }
+    wrap.appendChild(subsBar)
+  }
+
+  if (out.degraded) {
+    const notice = document.createElement('p')
+    notice.className = 'add-hint error'
+    notice.textContent = 'GitHub 接口暂时限流，README 没有加载；以下信息来自本地缓存或候选池，稍后刷新可恢复。'
+    wrap.appendChild(notice)
+  }
+
+  const readme = document.createElement('div')
+  readme.className = 'readme'
+  readme.innerHTML = rewriteReadme(out.readme || '', repo.fullName)
+  if (!readme.innerHTML.trim()) {
+    const empty = document.createElement('p')
+    empty.className = 'add-hint'
+    empty.textContent = out.degraded ? 'README 暂时取不到，点上方「在 GitHub 打开」查看完整页面。' : '这个仓库没有 README，点上方按钮去 GitHub 看完整页面。'
+    readme.appendChild(empty)
+  }
+  wrap.appendChild(readme)
+}
+
+function handleRoute() {
+  const match = /^#\/repo\/(.+)$/.exec(location.hash)
+  if (match) { renderRepo(decodeURIComponent(match[1])); return }
+  document.body.classList.remove('repo-mode')
+  if (repoCleanup) { repoCleanup(); repoCleanup = null }
+  if (main.querySelector('.repo-view')) render()
+}
+
+const addModal = document.getElementById('add-modal')
+const addUrl = document.getElementById('add-url')
+const addHint = document.getElementById('add-hint')
+const addPreview = document.getElementById('add-preview')
+const addTitleInput = document.getElementById('add-title-input')
+const addDescInput = document.getElementById('add-desc-input')
+const addWhyInput = document.getElementById('add-why-input')
+const addCategory = document.getElementById('add-category')
+const addConfirm = document.getElementById('add-confirm')
+const addLookup = document.getElementById('add-lookup')
+let addDraft = null
+
+function setHint(text, isError = false) {
+  addHint.textContent = text
+  addHint.classList.toggle('error', isError)
+}
+
+function openAdd() {
+  addDraft = null
+  addUrl.value = ''
+  addPreview.hidden = true
+  addConfirm.disabled = true
+  addConfirm.textContent = '确认添加'
+  addModal.hidden = false
+  setHint('粘贴仓库链接后点「生成」，会自动填好标题、简介和分类。')
+  setTimeout(() => addUrl.focus(), 30)
+}
+
+function closeAdd() { addModal.hidden = true }
+
+async function lookupAdd() {
+  const value = addUrl.value.trim()
+  if (!value) { setHint('先填一个 GitHub 仓库链接。', true); return }
+  addLookup.disabled = true
+  addLookup.textContent = '生成中…'
+  setHint('正在读取仓库信息…')
+  try {
+    const response = await fetch('/api/lookup', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ url: value }),
+    })
+    const out = await response.json()
+    if (!out.ok) {
+      setHint(out.reason === 'bad-url' ? '链接格式不对，应为 github.com/owner/repo。' : '没取到仓库信息，可能是私有仓库或接口限流。', true)
+      return
+    }
+    addDraft = out.draft
+    addTitleInput.value = out.draft.titleZh
+    addDescInput.value = out.draft.descZh
+    addWhyInput.value = out.draft.why
+    addCategory.value = out.draft.category
+    document.getElementById('add-language').value = out.draft.language || ''
+    document.getElementById('add-license').value = out.draft.license || ''
+    document.getElementById('add-topics').value = (out.draft.topics || []).join(', ')
+    addPreview.hidden = false
+    addConfirm.disabled = false
+    setHint('已生成，可修改后点「确认添加」。')
+  } catch (error) {
+    setHint('网络异常，稍后再试。', true)
+  } finally {
+    addLookup.disabled = false
+    addLookup.textContent = '生成'
+  }
+}
+
+async function confirmAdd() {
+  if (!addDraft) return
+  addConfirm.disabled = true
+  addConfirm.textContent = '添加中…'
+  try {
+    const response = await fetch('/api/save-manual', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({
+        url: addDraft.url,
+        titleZh: addTitleInput.value.trim(),
+        descZh: addDescInput.value.trim(),
+        why: addWhyInput.value.trim(),
+        category: addCategory.value,
+        language: document.getElementById('add-language').value.trim(),
+        license: document.getElementById('add-license').value.trim(),
+        topics: document.getElementById('add-topics').value.trim(),
+      }),
+    })
+    const out = await response.json()
+    if (!out.ok) {
+      setHint(out.reason === 'exists' ? '这个仓库已经在收藏里了。' : '添加失败，稍后再试。', true)
+      addConfirm.disabled = false
+      addConfirm.textContent = '确认添加'
+      return
+    }
+    closeAdd()
+    await load()
+    toast('已添加 ' + out.fullName + ' 到收藏')
+  } catch (error) {
+    setHint('网络异常，稍后再试。', true)
+    addConfirm.disabled = false
+    addConfirm.textContent = '确认添加'
+  }
+}
+
+window.addEventListener('hashchange', handleRoute)
+document.getElementById('detail-close').onclick = closeDetail
+document.querySelector('#detail-modal .modal-mask').onclick = closeDetail
+document.getElementById('open-add').onclick = openAdd
+document.getElementById('add-cancel').onclick = closeAdd
+document.querySelector('#add-modal .modal-mask').onclick = closeAdd
+addLookup.onclick = lookupAdd
+addConfirm.onclick = confirmAdd
+addUrl.addEventListener('keydown', (event) => { if (event.key === 'Enter') { event.preventDefault(); lookupAdd() } })
+document.addEventListener('keydown', (event) => { if (event.key === 'Escape' && !addModal.hidden) closeAdd(); if (event.key === 'Escape' && !document.getElementById('detail-modal').hidden) closeDetail() })
+
+let detailItem = null
+
+function showDetail(item) {
+  detailItem = item
+  document.getElementById('detail-title').textContent = item.titleZh || item.fullName
+  document.getElementById('detail-repo').textContent = item.fullName
+  document.getElementById('detail-stars').textContent = '★ ' + Number(item.stars || 0).toLocaleString()
+  document.getElementById('detail-desc').textContent = item.descZh || item.description || '（暂无简介）'
+  const meta = []
+  if (item.language) meta.push(item.language)
+  if (item.license) meta.push(item.license)
+  if (item.pushedAt) meta.push('更新 ' + String(item.pushedAt).slice(5, 10).replace('-', '/'))
+  const metaEl = document.getElementById('detail-meta')
+  metaEl.replaceChildren(...meta.map((text) => { const span = document.createElement('span'); span.textContent = text; return span }))
+  const topicsEl = document.getElementById('detail-topics')
+  topicsEl.replaceChildren(...(item.topics || []).slice(0, 6).map((text) => { const span = document.createElement('span'); span.textContent = text; return span }))
+  const why = document.getElementById('detail-why')
+  if (item.savedFile) {
+    why.hidden = false
+    document.getElementById('detail-why-text').textContent = item.descZh || ''
+  } else {
+    why.hidden = true
+  }
+  document.getElementById('detail-github').href = item.url
+  const save = document.getElementById('detail-save')
+  save.disabled = false
+  save.className = 'btn primary'
+  if (item.savedFile) {
+    save.textContent = '取消收藏'
+    save.className = 'btn'
+    save.onclick = async () => {
+      await fetch('/api/unsave', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ file: item.savedFile }) })
+      closeDetail()
+      await load()
+      toast('已取消收藏')
+    }
+  } else if (saved.has(item.fullName)) {
+    save.textContent = '已收藏'
+    save.disabled = true
+  } else {
+    save.textContent = '收藏'
+    save.onclick = async () => {
+      save.disabled = true
+      const response = await fetch('/api/save', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ n: item.n }) })
+      const out = await response.json().catch(() => ({}))
+      if (out.ok || out.reason === 'exists') {
+        closeDetail()
+        await load()
+        toast(out.ok ? '已收藏 ' + item.fullName : '这张卡已经在 inbox 里了')
+      } else {
+        save.disabled = false
+        toast('收藏失败，稍后再试')
+      }
+    }
+  }
+  document.getElementById('detail-modal').hidden = false
+}
+
+function closeDetail() { document.getElementById('detail-modal').hidden = true }
+
+const sortBtn = document.getElementById('sort-btn')
+const sortMenu = document.getElementById('sort-menu')
+const sortLabelText = document.getElementById('sort-label')
+const SORT_LABELS = { stars: '星标最多', discovered: '最新发现', updated: '最近更新' }
+function closeSortMenu() { sortMenu.hidden = true; sortBtn.setAttribute('aria-expanded', 'false') }
+function toggleSortMenu() {
+  const open = sortMenu.hidden
+  sortMenu.hidden = !open
+  sortBtn.setAttribute('aria-expanded', String(open))
+}
+sortBtn.onclick = (event) => { event.stopPropagation(); toggleSortMenu() }
+sortMenu.addEventListener('click', (event) => {
+  const option = event.target.closest('li[data-value]')
+  if (!option) return
+  sortMode = option.dataset.value
+  sortLabelText.textContent = SORT_LABELS[sortMode] ?? ''
+  for (const item of sortMenu.querySelectorAll('li')) item.setAttribute('aria-selected', String(item === option))
+  closeSortMenu()
+  render()
+})
+document.addEventListener('click', (event) => { if (!event.target.closest('#sort')) closeSortMenu(); if (!event.target.closest('.sub-filter')) for (const m of document.querySelectorAll('.sub-filter .sort-menu')) m.hidden = true })
+document.addEventListener('keydown', (event) => { if (event.key === 'Escape') closeSortMenu() })
+document.getElementById('q').addEventListener('input', () => { limits = {} })
+document.getElementById('tabs').addEventListener('click', () => { limits = {} })
+
+document.getElementById('theme').onclick = () => {
+  const next = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark'
+  document.documentElement.dataset.theme = next
+  try { localStorage.setItem('oss-picks-theme', next) } catch (error) {}
+}
+document.getElementById('discover').onclick = async (event) => {
+  const button = event.currentTarget
+  if (button.disabled) return
+  button.disabled = true
+  button.classList.add('searching')
+  toast('正在探索新的仓库…')
+  try {
+    const response = await fetch('/api/discover', { method: 'POST' })
+    const out = await response.json()
+    if (!out.ok) {
+      toast(out.reason === 'empty' ? '这次没搜到新仓库，稍后再试' : '探索失败，请稍后再试')
+      return
+    }
+    await load()
+    toast('新增 ' + out.added + ' 个，当前 ' + out.total + ' 个候选')
+  } catch (error) {
+    toast('网络不太稳定，稍后再试')
+  } finally {
+    button.disabled = false
+    button.classList.remove('searching')
+  }
+}
+document.getElementById('q').addEventListener('input', (event) => {
+  query = event.target.value.trim().toLowerCase()
+  render()
+})
+load().then(() => { if (/^#\/repo\//.test(location.hash)) handleRoute() }).catch((error) => { main.innerHTML = '<div class="empty">加载失败：' + error.message + '</div>' })
+</script>
+</body>
+</html>

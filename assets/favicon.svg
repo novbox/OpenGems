@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="120" height="120">
+<title>OpenGems</title>
+<rect width="120" height="120" rx="26" fill="#FFFFFF"/>
+<g id="mark" transform="scale(1.2)"><g id="brackets" fill="#0B0F19"><polygon points="31.99,13 45.13,13 13.57,50 45.13,87 31.99,87 0.43,50"/><polygon points="68.01,13 54.87,13 86.43,50 54.87,87 68.01,87 99.57,50"/></g><g id="gem"><polygon points="50,27 70,50 50,73 30,50" fill="#059669"/><polygon points="50,27 50,50 30,50" fill="#8ED0BC"/><polygon points="50,27 70,50 50,50" fill="#44B08E"/><polygon points="30,50 50,50 50,73" fill="#059669"/><polygon points="50,50 70,50 50,73" fill="#047552"/></g></g>
+</svg>

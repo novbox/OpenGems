@@ -1,0 +1,30 @@
+{
+  "perCategory": 8,
+  "minStars": 2000,
+  "categories": [
+    {
+      "id": "design",
+      "label": "设计",
+      "query": "topic:ui-kit stars:>5000",
+      "minStars": 8000
+    },
+    {
+      "id": "creative",
+      "label": "创意",
+      "query": "topic:creative-coding stars:>1000",
+      "minStars": 3000
+    },
+    {
+      "id": "fun",
+      "label": "趣味",
+      "query": "topic:game stars:>25000",
+      "minStars": 15000
+    },
+    {
+      "id": "tech",
+      "label": "技术",
+      "query": "topic:developer-tools stars:>15000",
+      "minStars": 8000
+    }
+  ]
+}
