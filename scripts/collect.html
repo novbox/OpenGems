@@ -212,6 +212,8 @@ body.repo-mode .hero{display:none}
 .save.danger:hover{background:color-mix(in srgb,var(--danger) 20%,transparent);color:var(--danger)}
 .btn.danger{color:var(--danger);border-color:color-mix(in srgb,var(--danger) 55%,transparent);background:color-mix(in srgb,var(--danger) 12%,transparent)}
 .btn.danger:hover:not(:disabled){background:color-mix(in srgb,var(--danger) 20%,transparent);color:var(--danger)}
+.btn.danger[data-armed="1"]{background:var(--danger);border-color:var(--danger);color:#fff}
+.btn.danger[data-armed="1"]:hover:not(:disabled){background:color-mix(in srgb,var(--danger) 86%,#000);border-color:var(--danger);color:#fff}
 .save.remove{border-color:color-mix(in srgb,var(--warn) 40%,transparent);background:color-mix(in srgb,var(--warn) 10%,transparent);color:var(--warn)}
 .save.remove:hover:not(:disabled){background:color-mix(in srgb,var(--warn) 18%,transparent);color:var(--warn)}
 .save.remove.danger{color:var(--danger);border-color:color-mix(in srgb,var(--danger) 60%,transparent);background:color-mix(in srgb,var(--danger) 14%,transparent)}
