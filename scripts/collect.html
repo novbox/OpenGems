@@ -298,11 +298,16 @@ main{padding:var(--s-2) 0 var(--s-5)}
 
   /* 详情页：头部两栏 + 标签 + 分类 */
   .repo-view{max-width:760px}
-  .repo-top{display:grid;grid-template-columns:minmax(0,1fr) 264px;gap:32px;align-items:start}
+  .repo-top{display:grid;grid-template-columns:minmax(0,1fr) 264px;
+    grid-template-areas:"main side" "body tags";column-gap:32px;row-gap:0;align-items:start}
+  .repo-main{grid-area:main}
+  .repo-side{grid-area:side}
+  .repo-body{grid-area:body;margin-top:22px}
+  .repo-tags{grid-area:tags;margin-top:22px}
   .repo-main h1{margin:0}
   .repo-main .repo-name{margin:6px 0 0}
   .repo-desc{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
-  .repo-side{display:flex;flex-direction:column;gap:48px;align-items:flex-start}
+  .repo-side{display:flex;flex-direction:column;align-items:flex-start}
   .repo-tags .lab{padding-left:9px}
   .chips{display:flex;flex-wrap:wrap;gap:6px;align-items:flex-start}
   .chip.outline{display:inline-flex;align-items:center;height:22px;background:transparent;border:1px solid var(--line);color:var(--muted);font-size:12px;line-height:1;padding:0 9px;border-radius:6px;white-space:nowrap}
@@ -332,16 +337,21 @@ main{padding:var(--s-2) 0 var(--s-5)}
 
   /* 详情页：对齐 opengems-detail-demo6 的尺寸 */
   .repo-view{max-width:760px;margin:0 auto;width:100%}
-  .repo-top{display:grid;grid-template-columns:minmax(0,1fr) 264px;gap:32px;align-items:start}
+  .repo-top{display:grid;grid-template-columns:minmax(0,1fr) 264px;
+    grid-template-areas:"main side" "body tags";column-gap:32px;row-gap:0;align-items:start}
+  .repo-main{grid-area:main}
+  .repo-side{grid-area:side}
+  .repo-body{grid-area:body;margin-top:22px}
+  .repo-tags{grid-area:tags;margin-top:22px}
   .repo-main h1{margin:0;font-size:32px;line-height:1.25;font-weight:700;letter-spacing:-.01em;
     display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
   .repo-main .repo-name{margin:6px 0 0;font-size:15px}
-  .repo-desc{margin:22px 0 16px;font-size:15px;line-height:1.7;
+  .repo-desc{margin:0 0 16px;font-size:15px;line-height:1.7;
     display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
   .detail-meta{gap:var(--s-2);margin:0}
   .detail-meta span{font-size:var(--fs-label);line-height:1.4;padding:2px 8px;border-radius:6px;background:var(--panel-2);color:var(--muted)}
   .detail-meta span.recent{background:color-mix(in srgb,var(--accent) 14%,transparent);color:var(--accent);font-weight:600}
-  .repo-side{display:flex;flex-direction:column;gap:48px;align-items:flex-start}
+  .repo-side{display:flex;flex-direction:column;align-items:flex-start}
   .repo-tags .lab,.repo-side .lab{display:block;font-size:12px;font-weight:500;letter-spacing:.04em;color:var(--muted);opacity:.8;margin-bottom:8px;padding-left:9px}
   .chips{display:flex;flex-wrap:wrap;gap:6px}
   .chip.outline{display:inline-flex;align-items:center;height:22px;background:transparent;border:1px solid var(--line);color:var(--muted);font-size:12px;line-height:1;padding:0 9px;border-radius:8px;white-space:nowrap}
@@ -1085,7 +1095,10 @@ async function renderRepo(fullName) {
     if (value === updatedText && isRecent) span.className = 'recent'
     meta.appendChild(span)
   }
-  headLeft.append(h1, name, desc, meta)
+  const body = document.createElement('div')
+  body.className = 'repo-body'
+  body.append(desc, meta)
+  headLeft.append(h1, name)
 
   const side = document.createElement('aside')
   side.className = 'repo-side'
@@ -1143,8 +1156,8 @@ async function renderRepo(fullName) {
     tagsRow.appendChild(more)
   }
   tagsBox.append(tagsLab, tagsRow)
-  side.append(stars, tagsBox)
-  head.append(headLeft, side)
+  side.append(stars)
+  head.append(headLeft, side, body, tagsBox)
   wrap.appendChild(head)
 
   const actions = document.createElement('div')
