@@ -36,7 +36,7 @@ for (const n of nums) {
     console.error(`跳过 ${n}：${file.replace(DATA + '/', '')} 已存在`)
     continue
   }
-  const why = item.description ? item.description.replace(/\s+/g, ' ').slice(0, 160) : '（待补：它好在哪里）'
+  const why = item.description ? item.description.replace(/\s+/g, ' ').slice(0, 110) : '（待补：它好在哪里）'
   const content = `---
 repo: ${item.url}
 title: ${item.fullName}

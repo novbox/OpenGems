@@ -36,7 +36,7 @@ function saveItem(item, category) {
   mkdirSync(dataPath('inbox'), { recursive: true })
   const date = today()
   const description = String(item.description || '').replace(/\s+/g, ' ').trim()
-  const why = description ? description.slice(0, 160) : '（待补：它好在哪里）'
+  const why = description ? description.slice(0, 110) : '（待补：它好在哪里）'
   const content = `---
 repo: ${item.url}
 title: ${item.fullName}
