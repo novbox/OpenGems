@@ -4,7 +4,7 @@
   <img src="assets/opengems-horizontal-light.svg" height="44" alt="OpenGems">
 </picture>
 
-探索值得收藏的开源世界。按主题收集 GitHub 上高星、质量好的项目，并为每个项目写下一句“它好在哪里”。
+`v0.1` · 探索值得收藏的开源世界。按主题收集 GitHub 上高星、质量好的项目，并为每个项目写下一句“它好在哪里”。
 
 零依赖的本地应用：一个 Node 进程 + 一个网页，数据是可读的 Markdown 卡片。
 

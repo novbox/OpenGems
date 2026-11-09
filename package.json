@@ -1,0 +1,16 @@
+{
+  "name": "opengems",
+  "version": "0.1.0",
+  "private": true,
+  "description": "探索值得收藏的开源世界：按主题收集 GitHub 上高星、质量好的项目",
+  "type": "module",
+  "license": "MIT",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "start": "node scripts/collect.mjs",
+    "discover": "node scripts/discover.mjs",
+    "review": "node scripts/review-report.mjs"
+  }
+}
