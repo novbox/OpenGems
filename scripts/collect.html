@@ -460,25 +460,34 @@ window.addEventListener('resize', () => {
   if (tabsEl) tabsEl.classList.toggle('is-scrollable', tabsEl.scrollWidth > tabsEl.clientWidth + 1)
 })
 
+let armedUnsaveButton = null
+
 function armUnsave(button) {
   if (button.dataset.armed === '1') return true
+  armedUnsaveButton = button
   button.dataset.armed = '1'
   button.textContent = '确认取消'
-  button.classList.add('danger')
   clearTimeout(button._armTimer)
-  button._armTimer = setTimeout(() => {
-    button.dataset.armed = '0'
-    button.textContent = '取消收藏'
-  }, 10000)
+  button._armTimer = setTimeout(() => disarmUnsave(button), 10000)
   return false
 }
 
 function disarmUnsave(button) {
+  if (!button) return
   clearTimeout(button._armTimer)
   button.dataset.armed = '0'
   button.textContent = '取消收藏'
-  button.classList.remove('danger')
+  if (armedUnsaveButton === button) armedUnsaveButton = null
 }
+
+// 点按钮之外的地方也解除确认态
+document.addEventListener('click', (event) => {
+  const button = armedUnsaveButton
+  if (!button) return
+  const target = event.target
+  if (target instanceof Element && target.closest('button') === button) return
+  disarmUnsave(button)
+})
 
 function cardFor(item) {
   const card = document.createElement('article')
