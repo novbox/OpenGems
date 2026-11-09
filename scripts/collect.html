@@ -63,6 +63,27 @@ header{position:sticky;top:0;z-index:30;background:color-mix(in srgb,var(--bg) 7
 .nav{display:flex;align-items:center;gap:var(--s-5);min-height:88px}
 .brand{display:flex;align-items:center;flex:none;transform:translateY(4px)}
 .brand .logo{height:32px;width:auto;display:block}
+  .brand-mark{position:relative;display:inline-flex;align-items:center}
+  .brand-mark .logo-fx{position:absolute;left:0;top:0;width:100%;height:100%;pointer-events:none;overflow:visible;display:none}
+  :root[data-theme="dark"] .brand-mark .logo-fx{display:block}
+  .og-sweep{animation:ogSweep 7s linear infinite}
+  .og-glint{opacity:0;transform-box:fill-box;transform-origin:center;will-change:transform,opacity;animation:ogGlint 7s cubic-bezier(.16,.84,.24,1) infinite}
+  @keyframes ogSweep{
+    0%{transform:translateX(-60px);opacity:0}
+    4%{opacity:.9}
+    20%{opacity:.9}
+    30%{transform:translateX(260px);opacity:0}
+    100%{transform:translateX(260px);opacity:0}
+  }
+  @keyframes ogGlint{
+    0%{opacity:0;transform:scale(.15)}
+    2.2%{opacity:1;transform:scale(1.08)}
+    6%{opacity:.95;transform:scale(1)}
+    13%{opacity:0;transform:scale(1.04)}
+    100%{opacity:0;transform:scale(.15)}
+  }
+  @media (prefers-reduced-motion: reduce){.og-sweep,.og-glint{animation:none}}
+
 :root[data-theme="dark"]{color-scheme:dark}
 :root[data-theme="dark"] .logo-light{display:none}
 :root[data-theme="light"] .logo-dark{display:none}
@@ -280,8 +301,114 @@ main{padding:var(--s-2) 0 var(--s-5)}
 <header>
   <div class="wrap nav">
     <a class="brand" href="/" aria-label="OpenGems">
-      <img class="logo logo-light" src="/assets/opengems-horizontal-light.svg" alt="OpenGems">
-      <img class="logo logo-dark" src="/assets/opengems-horizontal-dark.svg" alt="" aria-hidden="true" />
+      <span class="brand-mark">
+        <img class="logo logo-light" src="/assets/opengems-horizontal-light.svg" alt="OpenGems">
+        <img class="logo logo-dark" src="/assets/opengems-horizontal-dark.svg" alt="" aria-hidden="true" />
+        <svg class="logo-fx" viewBox="0.52 15.60 579.75 92.45" aria-hidden="true" focusable="false">
+          <defs>
+            <clipPath id="ogGemsClip"><path d="M388.68800000000005 91.68Q382.17600000000004 91.68 377.028 88.82000000000001Q371.88000000000005 85.96000000000001 368.84400000000005 80.46000000000001Q365.80800000000005 74.96000000000001 365.80800000000005 66.95200000000001V52.34400000000001Q365.80800000000005 40.37600000000001 372.49600000000004 33.99600000000001Q379.184 27.616000000000014 390.44800000000004 27.616000000000014Q401.71200000000005 27.616000000000014 407.784 33.64400000000001Q413.856 39.67200000000001 413.856 49.88000000000001V50.232000000000006H403.47200000000004V49.52800000000001Q403.47200000000004 46.00800000000001 402.064 43.19200000000001Q400.656 40.37600000000001 397.752 38.74800000000001Q394.848 37.12000000000001 390.44800000000004 37.12000000000001Q383.93600000000004 37.12000000000001 380.196 41.12400000000001Q376.456 45.12800000000001 376.456 52.168000000000006V67.12800000000001Q376.456 74.08000000000001 380.196 78.21600000000001Q383.93600000000004 82.352 390.624 82.352Q397.312 82.352 400.39200000000005 78.744Q403.47200000000004 75.13600000000001 403.47200000000004 69.504V68.44800000000001H387.896V59.47200000000001H413.856V90.44800000000001H404.17600000000004V84.376H402.68Q401.976 85.96000000000001 400.48 87.67600000000002Q398.98400000000004 89.39200000000001 396.21200000000005 90.536Q393.44000000000005 91.68 388.68800000000005 91.68Z M443.07200000000006 91.68Q436.56000000000006 91.68 431.5880000000001 88.90800000000002Q426.61600000000004 86.13600000000001 423.84400000000005 81.07600000000001Q421.07200000000006 76.016 421.07200000000006 69.24000000000001V68.18400000000001Q421.07200000000006 61.32000000000001 423.80000000000007 56.30400000000001Q426.528 51.28800000000001 431.456 48.516000000000005Q436.38400000000007 45.74400000000001 442.80800000000005 45.74400000000001Q449.14400000000006 45.74400000000001 453.8960000000001 48.516000000000005Q458.648 51.28800000000001 461.288 56.30400000000001Q463.92800000000005 61.32000000000001 463.92800000000005 68.00800000000001V71.61600000000001H431.28000000000003Q431.4560000000001 76.72000000000001 434.88800000000003 79.80000000000001Q438.32000000000005 82.88000000000001 443.33600000000007 82.88000000000001Q448.26400000000007 82.88000000000001 450.6400000000001 80.72400000000002Q453.0160000000001 78.56800000000001 454.24800000000005 75.84L462.60800000000006 80.15200000000002Q461.37600000000003 82.528 459.04400000000004 85.212Q456.71200000000005 87.896 452.84000000000003 89.78800000000001Q448.9680000000001 91.68 443.07200000000006 91.68ZM431.36800000000005 63.96000000000001H453.63200000000006Q453.28000000000003 59.64800000000001 450.33200000000005 57.09600000000001Q447.38400000000007 54.54400000000001 442.72 54.54400000000001Q437.88000000000005 54.54400000000001 434.97600000000006 57.09600000000001Q432.07200000000006 59.64800000000001 431.36800000000005 63.96000000000001Z M471.672 90.44800000000001V46.97600000000001H481.61600000000004V51.81600000000001H483.112Q484.25600000000003 49.61600000000001 486.94000000000005 47.900000000000006Q489.624 46.18400000000001 494.112 46.18400000000001Q498.86400000000003 46.18400000000001 501.76800000000003 48.12000000000001Q504.672 50.05600000000001 506.16800000000006 53.04800000000001H507.576Q509.07200000000006 50.05600000000001 511.88800000000003 48.12000000000001Q514.7040000000001 46.18400000000001 519.8960000000001 46.18400000000001Q523.9440000000001 46.18400000000001 527.2440000000001 47.94400000000001Q530.5440000000001 49.70400000000001 532.5240000000001 53.13600000000001Q534.504 56.56800000000001 534.504 61.67200000000001V90.44800000000001H524.384V62.376000000000005Q524.384 58.59200000000001 522.36 56.61200000000001Q520.336 54.63200000000001 516.7280000000001 54.63200000000001Q512.768 54.63200000000001 510.43600000000004 57.22800000000001Q508.10400000000004 59.82400000000001 508.10400000000004 64.66400000000002V90.44800000000001H498.07200000000006V62.376000000000005Q498.07200000000006 58.59200000000001 496.04800000000006 56.61200000000001Q494.02400000000006 54.63200000000001 490.41600000000005 54.63200000000001Q486.36800000000005 54.63200000000001 484.08000000000004 57.22800000000001Q481.79200000000003 59.82400000000001 481.79200000000003 64.66400000000002V90.44800000000001Z M562.224 91.68Q553.7760000000001 91.68 548.32 87.98400000000001Q542.864 84.28800000000001 541.72 77.16000000000001L551.0480000000001 74.784Q551.6640000000001 78.12800000000001 553.248 80.06400000000001Q554.8320000000001 82.0 557.1640000000001 82.792Q559.4960000000001 83.584 562.224 83.584Q566.36 83.584 568.4280000000001 82.08800000000001Q570.4960000000001 80.59200000000001 570.4960000000001 78.304Q570.4960000000001 75.92800000000001 568.5160000000001 74.78400000000002Q566.5360000000001 73.64000000000001 562.488 72.84800000000001L559.7600000000001 72.40800000000002Q555.272 71.528 551.576 69.988Q547.8800000000001 68.44800000000001 545.6360000000001 65.76400000000001Q543.392 63.08000000000001 543.392 58.94400000000001Q543.392 52.60800000000001 548.1000000000001 49.17600000000001Q552.8080000000001 45.74400000000001 560.464 45.74400000000001Q567.768 45.74400000000001 572.52 49.00000000000001Q577.272 52.25600000000001 578.6800000000001 57.71200000000001L569.3520000000001 60.528000000000006Q568.648 56.83200000000001 566.272 55.29200000000001Q563.8960000000001 53.75200000000001 560.464 53.75200000000001Q556.9440000000001 53.75200000000001 555.0520000000001 54.98400000000001Q553.1600000000001 56.21600000000001 553.1600000000001 58.504000000000005Q553.1600000000001 60.79200000000001 555.096 61.93600000000001Q557.032 63.08000000000001 560.288 63.608000000000004L563.0160000000001 64.13600000000001Q567.8560000000001 65.016 571.7720000000002 66.424Q575.6880000000001 67.83200000000001 577.9760000000001 70.47200000000001Q580.2640000000001 73.11200000000001 580.2640000000001 77.60000000000001Q580.2640000000001 84.376 575.3800000000001 88.028Q570.4960000000001 91.68 562.224 91.68Z"/></clipPath>
+            <linearGradient id="ogShine" x1="0" y1="0" x2="1" y2="0">
+              <stop offset="0" stop-color="#fff" stop-opacity="0"/>
+              <stop offset=".45" stop-color="#fff" stop-opacity=".9"/>
+              <stop offset=".55" stop-color="#fff" stop-opacity=".9"/>
+              <stop offset="1" stop-color="#fff" stop-opacity="0"/>
+            </linearGradient>
+            <radialGradient id="ogHalo"><stop offset="0" stop-color="#fff" stop-opacity=".92"/><stop offset=".28" stop-color="#fff" stop-opacity=".42"/><stop offset=".55" stop-color="#fff" stop-opacity=".16"/><stop offset=".78" stop-color="#fff" stop-opacity=".05"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></radialGradient>
+            <radialGradient id="ogCore"><stop offset="0" stop-color="#fff" stop-opacity="1"/><stop offset=".55" stop-color="#fff" stop-opacity=".8"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></radialGradient>
+            <linearGradient id="ogStreakH" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#fff" stop-opacity="0"/><stop offset=".42" stop-color="#fff" stop-opacity=".5"/><stop offset=".5" stop-color="#fff" stop-opacity="1"/><stop offset=".58" stop-color="#fff" stop-opacity=".5"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></linearGradient>
+            <linearGradient id="ogStreakV" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff" stop-opacity="0"/><stop offset=".42" stop-color="#fff" stop-opacity=".4"/><stop offset=".5" stop-color="#fff" stop-opacity=".85"/><stop offset=".58" stop-color="#fff" stop-opacity=".4"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></linearGradient>
+            <radialGradient id="ogChromaC"><stop offset="0" stop-color="#7ef0ff" stop-opacity=".85"/><stop offset="1" stop-color="#7ef0ff" stop-opacity="0"/></radialGradient>
+            <radialGradient id="ogChromaM"><stop offset="0" stop-color="#ff9be0" stop-opacity=".8"/><stop offset="1" stop-color="#ff9be0" stop-opacity="0"/></radialGradient>
+          </defs>
+          <g clip-path="url(#ogGemsClip)">
+            <rect class="og-sweep" x="360" y="20" width="420" height="80" fill="url(#ogShine)"/>
+          </g>
+            <g transform="translate(498 52) scale(1.47)">
+              <g class="og-glint" style="animation-delay:0.18s">
+                <circle r="17" fill="url(#ogHalo)" opacity=".55"/>
+                <circle r="6.5" fill="url(#ogHalo)"/>
+                <ellipse rx="32" ry=".9" fill="url(#ogStreakH)"/>
+                <ellipse rx=".9" ry="20" fill="url(#ogStreakV)"/>
+                <ellipse rx="12" ry=".55" fill="url(#ogStreakH)" opacity=".8"/>
+                <circle r="1.9" fill="url(#ogCore)"/>
+                <circle r="4.4" fill="url(#ogChromaC)" opacity=".16" style="mix-blend-mode:screen"/>
+                <circle r="3.6" fill="url(#ogChromaM)" opacity=".10" style="mix-blend-mode:screen"/>
+              </g>
+            </g>
+            <g transform="translate(418 62) scale(0.50)">
+              <g class="og-glint" style="animation-delay:0.34s">
+                <circle r="17" fill="url(#ogHalo)" opacity=".55"/>
+                <circle r="6.5" fill="url(#ogHalo)"/>
+                <ellipse rx="32" ry=".9" fill="url(#ogStreakH)"/>
+                <ellipse rx=".9" ry="20" fill="url(#ogStreakV)"/>
+                <ellipse rx="12" ry=".55" fill="url(#ogStreakH)" opacity=".8"/>
+                <circle r="1.9" fill="url(#ogCore)"/>
+                <circle r="4.4" fill="url(#ogChromaC)" opacity=".16" style="mix-blend-mode:screen"/>
+                <circle r="3.6" fill="url(#ogChromaM)" opacity=".10" style="mix-blend-mode:screen"/>
+              </g>
+            </g>
+            <g transform="translate(462 30) scale(0.64)">
+              <g class="og-glint" style="animation-delay:0.5s">
+                <circle r="17" fill="url(#ogHalo)" opacity=".55"/>
+                <circle r="6.5" fill="url(#ogHalo)"/>
+                <ellipse rx="32" ry=".9" fill="url(#ogStreakH)"/>
+                <ellipse rx=".9" ry="20" fill="url(#ogStreakV)"/>
+                <ellipse rx="12" ry=".55" fill="url(#ogStreakH)" opacity=".8"/>
+                <circle r="1.9" fill="url(#ogCore)"/>
+                <circle r="4.4" fill="url(#ogChromaC)" opacity=".16" style="mix-blend-mode:screen"/>
+                <circle r="3.6" fill="url(#ogChromaM)" opacity=".10" style="mix-blend-mode:screen"/>
+              </g>
+            </g>
+            <g transform="translate(492 74) scale(0.45)">
+              <g class="og-glint" style="animation-delay:0.62s">
+                <circle r="17" fill="url(#ogHalo)" opacity=".55"/>
+                <circle r="6.5" fill="url(#ogHalo)"/>
+                <ellipse rx="32" ry=".9" fill="url(#ogStreakH)"/>
+                <ellipse rx=".9" ry="20" fill="url(#ogStreakV)"/>
+                <ellipse rx="12" ry=".55" fill="url(#ogStreakH)" opacity=".8"/>
+                <circle r="1.9" fill="url(#ogCore)"/>
+                <circle r="4.4" fill="url(#ogChromaC)" opacity=".16" style="mix-blend-mode:screen"/>
+                <circle r="3.6" fill="url(#ogChromaM)" opacity=".10" style="mix-blend-mode:screen"/>
+              </g>
+            </g>
+            <g transform="translate(520 42) scale(0.76)">
+              <g class="og-glint" style="animation-delay:0.78s">
+                <circle r="17" fill="url(#ogHalo)" opacity=".55"/>
+                <circle r="6.5" fill="url(#ogHalo)"/>
+                <ellipse rx="32" ry=".9" fill="url(#ogStreakH)"/>
+                <ellipse rx=".9" ry="20" fill="url(#ogStreakV)"/>
+                <ellipse rx="12" ry=".55" fill="url(#ogStreakH)" opacity=".8"/>
+                <circle r="1.9" fill="url(#ogCore)"/>
+                <circle r="4.4" fill="url(#ogChromaC)" opacity=".16" style="mix-blend-mode:screen"/>
+                <circle r="3.6" fill="url(#ogChromaM)" opacity=".10" style="mix-blend-mode:screen"/>
+              </g>
+            </g>
+            <g transform="translate(548 70) scale(0.50)">
+              <g class="og-glint" style="animation-delay:0.92s">
+                <circle r="17" fill="url(#ogHalo)" opacity=".55"/>
+                <circle r="6.5" fill="url(#ogHalo)"/>
+                <ellipse rx="32" ry=".9" fill="url(#ogStreakH)"/>
+                <ellipse rx=".9" ry="20" fill="url(#ogStreakV)"/>
+                <ellipse rx="12" ry=".55" fill="url(#ogStreakH)" opacity=".8"/>
+                <circle r="1.9" fill="url(#ogCore)"/>
+                <circle r="4.4" fill="url(#ogChromaC)" opacity=".16" style="mix-blend-mode:screen"/>
+                <circle r="3.6" fill="url(#ogChromaM)" opacity=".10" style="mix-blend-mode:screen"/>
+              </g>
+            </g>
+            <g transform="translate(566 44) scale(0.39)">
+              <g class="og-glint" style="animation-delay:1.06s">
+                <circle r="17" fill="url(#ogHalo)" opacity=".55"/>
+                <circle r="6.5" fill="url(#ogHalo)"/>
+                <ellipse rx="32" ry=".9" fill="url(#ogStreakH)"/>
+                <ellipse rx=".9" ry="20" fill="url(#ogStreakV)"/>
+                <ellipse rx="12" ry=".55" fill="url(#ogStreakH)" opacity=".8"/>
+                <circle r="1.9" fill="url(#ogCore)"/>
+                <circle r="4.4" fill="url(#ogChromaC)" opacity=".16" style="mix-blend-mode:screen"/>
+                <circle r="3.6" fill="url(#ogChromaM)" opacity=".10" style="mix-blend-mode:screen"/>
+              </g>
+            </g>
+        </svg>
+      </span>
     </a>
     <div class="actions">
       <label class="search">
