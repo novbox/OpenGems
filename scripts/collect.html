@@ -104,7 +104,7 @@ header{position:sticky;top:0;z-index:30;background:color-mix(in srgb,var(--bg) 7
 
 .actions{display:flex;align-items:center;gap:var(--s-2);flex:none;margin-left:auto}
 .search{display:flex;align-items:center;gap:var(--s-2);height:var(--size-control);background:var(--panel);border:1px solid var(--line);border-radius:var(--r-md);padding:0 var(--s-3)}
-.search svg{width:14px;height:14px;stroke:var(--muted);fill:none;stroke-width:1.7;flex:none}
+.search svg{width:14px;height:14px;stroke:var(--muted);fill:none;stroke-width:1;flex:none}
 .search input{width:150px;background:none;border:0;outline:none;color:var(--text);font-family:inherit;font-size:var(--fs-small);line-height:var(--lh-small)}
 .search input::placeholder{color:var(--muted)}
 .icon-btn{width:var(--size-control);height:var(--size-control);display:grid;place-items:center;border:1px solid var(--line);border-radius:var(--r-md);background:var(--panel);color:var(--muted);cursor:pointer;transition:color .15s,border-color .15s}
@@ -405,7 +405,7 @@ main{padding:var(--s-2) 0 var(--s-5)}
     </a>
     <div class="actions">
       <label class="search">
-        <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"></circle><path d="m20 20-3.5-3.5"></path></svg>
+        <svg viewBox="0 0 16 16"><path d="M6.58727 11.8586C9.55061 11.8586 11.9529 9.45637 11.9529 6.49304C11.9529 3.5297 9.55061 1.12744 6.58727 1.12744C3.62394 1.12744 1.22168 3.5297 1.22168 6.49304C1.22168 9.45637 3.62394 11.8586 6.58727 11.8586Z"></path><path d="M10.2991 10.3933L14.7783 14.8725"></path></svg>
         <input id="q" type="search" placeholder="搜索" autocomplete="off">
       </label>
       <button class="icon-btn" id="open-add" type="button" title="添加收藏" aria-label="添加收藏">
@@ -433,7 +433,7 @@ main{padding:var(--s-2) 0 var(--s-5)}
     <div class="sort" id="sort">
       <button class="sort-btn" id="sort-btn" type="button" aria-haspopup="listbox" aria-expanded="false">
         <span id="sort-label">星标最多</span>
-        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"></path></svg>
+        <svg viewBox="0 0 16 16" aria-hidden="true"><g transform="scale(0.66667)"><path d="m6 9 6 6 6-6"></path></g></svg>
       </button>
       <ul class="sort-menu" id="sort-menu" role="listbox" hidden>
         <li role="option" data-value="stars" aria-selected="true">星标最多</li>
