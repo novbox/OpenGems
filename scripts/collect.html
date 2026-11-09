@@ -665,14 +665,6 @@ function cardFor(item) {
       meta.appendChild(recentChip)
     }
   }
-  if (item.categoryId === 'design') {
-    for (const sub of subsOf(item)) {
-      const chip = document.createElement('span')
-      chip.className = 'chip sub'
-      chip.textContent = sub
-      meta.appendChild(chip)
-    }
-  }
   for (const text of [item.language, item.license || '无协议', (item.topics || [])[0]]) {
     if (!text) continue
     const chip = document.createElement('span')
