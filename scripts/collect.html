@@ -44,11 +44,11 @@ html{scrollbar-gutter:stable both-edges}
 }
 :root[data-theme="light"]{color-scheme:light;
   --brand-solid:#0f1115; --on-brand:#f9fafb;
-  --bg:#f5f7fa; --panel:#ffffff; --panel-2:#ebeef2; --line:rgba(0,0,0,.06); --line-soft:rgba(0,0,0,.04);
+  --bg:#e9edf3; --panel:#ffffff; --panel-2:#edf0f5; --line:rgba(15,23,42,.10); --line-soft:rgba(15,23,42,.06);
   --text:#0f1115; --muted:#61666b; --brand:#2563eb; --brand-2:#2563eb;
   --ok:#22c55e; --warn:#f59e0b; --danger:#ff3b30; --accent:#2563eb;
   --grad-a:#2563eb; --grad-b:#5686fe; --grad-c:#7c3aed;
-  --grad-a:#007aff; --grad-b:#5856d6; --grad-c:#af52de; --shadow:0 8px 24px rgba(0,0,0,.08);
+  --grad-a:#007aff; --grad-b:#5856d6; --grad-c:#af52de; --shadow:0 10px 30px rgba(15,23,42,.10);
   --glow-1:transparent; --glow-2:transparent;
 }
 *{box-sizing:border-box}
@@ -87,6 +87,7 @@ header{position:sticky;top:0;z-index:30;background:color-mix(in srgb,var(--bg) 7
 :root[data-theme="dark"]{color-scheme:dark}
 :root[data-theme="dark"] .logo-light{display:none}
 :root[data-theme="light"] .logo-dark{display:none}
+:root[data-theme="light"] .card{box-shadow:0 1px 2px rgba(15,23,42,.05),0 6px 20px rgba(15,23,42,.06)}
 
 .tabs-row{display:flex;flex-wrap:nowrap;align-items:flex-start;gap:var(--s-4);padding:16px var(--gutter) 2px;box-sizing:border-box}
 .tabs-row .sort{margin-left:auto}
