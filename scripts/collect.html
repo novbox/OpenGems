@@ -1180,14 +1180,15 @@ async function renderRepo(fullName) {
     const index = picked.findIndex((tag) => tag.name === name)
     if (index >= 0) {
       const [removed] = picked.splice(index, 1)
-      if (removed.auto) { suggestions.push(name); flash('已撤销「' + name + '」') }
-      else flash('已取消「' + name + '」')
+      if (removed.auto) suggestions.push(name)
     } else {
       const auto = suggestions.includes(name)
       picked.push({ name, auto })
       if (auto) suggestions = suggestions.filter((n) => n !== name)
-      flash(isSaved ? '已归到「' + name + '」，将同步' : '将归到「' + name + '」，收藏后生效')
     }
+    const names = picked.map((tag) => tag.name)
+    if (isSaved) flash(names.length ? '已归到：' + names.join('、') + '，将同步' : '已取消全部分类，将同步')
+    else flash(names.length ? '将归到：' + names.join('、') + '，收藏后生效' : '还没有选择分类，点「收藏」会存为未分类')
     persist()
     renderCats()
   }
