@@ -337,6 +337,24 @@ main{padding:var(--s-2) 0 var(--s-5)}
   @media (max-width:820px){.repo-top{grid-template-columns:1fr;gap:18px}.repo-side{gap:24px}}
   html.no-blur header,html.no-blur .repo-sticky{backdrop-filter:none}
   .field[hidden]{display:none}
+
+  /* 添加收藏：紧凑表单 + 自定义下拉 */
+  .modal-card{width:min(420px,100%);padding:var(--s-4)}
+  .modal-card h2{font-size:var(--fs-title);line-height:22px;margin-bottom:var(--s-3)}
+  .field{margin-bottom:var(--s-2)}
+  .field>span{display:block;font-size:var(--fs-label);line-height:16px;color:var(--muted);margin-bottom:4px}
+  .field input,.field textarea{font-size:var(--fs-small);padding:6px 10px;border-radius:8px;height:32px}
+  .field textarea{height:auto;min-height:64px;padding:8px 10px;line-height:1.6}
+  .field-row button{height:32px;font-size:var(--fs-small);border-radius:8px}
+  .add-meta{display:flex;flex-wrap:wrap;gap:6px;min-height:32px;align-items:center}
+  .add-meta .chip{font-size:var(--fs-label)}
+  .add-meta .empty{font-size:var(--fs-meta);color:var(--muted);opacity:.7}
+  .cats{display:flex;flex-wrap:wrap;gap:6px}
+  .cats .cat{border:1px solid var(--line);background:transparent;color:var(--muted);border-radius:var(--r-pill);
+    padding:5px 12px;font-size:var(--fs-small);cursor:pointer;font-family:inherit}
+  .cats .cat[aria-selected="true"]{background:color-mix(in srgb,var(--accent) 14%,transparent);
+    border-color:color-mix(in srgb,var(--accent) 45%,transparent);color:var(--accent);font-weight:500}
+  .cats .cat.new{border-style:dashed}
 </style>
 </head>
 <body>
@@ -497,20 +515,10 @@ main{padding:var(--s-2) 0 var(--s-5)}
       <label class="field"><span>中文标题</span><input id="add-title-input" type="text"></label>
       <label class="field"><span>一句话简介</span><input id="add-desc-input" type="text"></label>
       <label class="field"><span>为什么值得收</span><textarea id="add-why-input" rows="3"></textarea></label>
-      <div class="field-row">
-        <label class="field" style="flex:1"><span>语言</span><input id="add-language" type="text" placeholder="如 TypeScript"></label>
-        <label class="field" style="flex:1"><span>协议</span><input id="add-license" type="text" placeholder="如 MIT"></label>
+      <div class="field"><span>仓库信息</span><div class="add-meta" id="add-meta"></div></div>
+      <div class="field"><span>分类</span>
+        <div class="cats" id="add-cats"></div>
       </div>
-      <label class="field"><span>话题（逗号分隔，可空）</span><input id="add-topics" type="text" placeholder="如 react, ui, components"></label>
-      <label class="field"><span>分类</span>
-        <select id="add-category">
-          <option value="design">设计</option>
-          <option value="creative">创意</option>
-          <option value="fun">趣味</option>
-          <option value="tech">技术</option>
-          <option value="__new">＋ 新建分类…</option>
-        </select>
-      </label>
       <label class="field" id="add-cat-new-field" hidden><span>新分类名称</span><input id="add-cat-new" type="text" maxlength="12" placeholder="如 终端工具"></label>
     </div>
     <div class="modal-actions">
@@ -1313,16 +1321,72 @@ const addPreview = document.getElementById('add-preview')
 const addTitleInput = document.getElementById('add-title-input')
 const addDescInput = document.getElementById('add-desc-input')
 const addWhyInput = document.getElementById('add-why-input')
-const addCategory = document.getElementById('add-category')
+const addCats = document.getElementById('add-cats')
 const addCatNew = document.getElementById('add-cat-new')
 const addCatNewField = document.getElementById('add-cat-new-field')
-addCategory.addEventListener('change', () => {
-  addCatNewField.hidden = addCategory.value !== '__new'
-  if (addCategory.value === '__new') addCatNew.focus()
-})
+const addMeta = document.getElementById('add-meta')
+const CATS = [['design', '设计'], ['creative', '创意'], ['fun', '趣味'], ['tech', '技术']]
+let addCategoryValue = 'tech'
+let addMetaDraft = null
+
+function renderAddCats() {
+  addCats.replaceChildren()
+  for (const [value, label] of CATS) {
+    const button = document.createElement('button')
+    button.type = 'button'
+    button.className = 'cat'
+    button.textContent = label
+    button.setAttribute('aria-selected', String(value === addCategoryValue))
+    button.onclick = () => { addCategoryValue = value; addCatNewField.hidden = true; renderAddCats() }
+    addCats.appendChild(button)
+  }
+  const add = document.createElement('button')
+  add.type = 'button'
+  add.className = 'cat new'
+  add.textContent = '＋ 新建分类'
+  add.onclick = () => {
+    addCategoryValue = '__new'
+    addCatNewField.hidden = false
+    addCatNew.focus()
+    renderAddCats()
+  }
+  addCats.appendChild(add)
+}
+function setAddCategory(value) {
+  addCategoryValue = value || 'tech'
+  addCatNewField.hidden = true
+  renderAddCats()
+}
+function renderAddMeta(draft) {
+  addMeta.replaceChildren()
+  const parts = [draft.language, draft.license].filter(Boolean)
+  for (const text of parts) {
+    const chip = document.createElement('span')
+    chip.className = 'chip'
+    chip.textContent = text
+    addMeta.appendChild(chip)
+  }
+  for (const topic of (draft.topics || []).slice(0, 4)) {
+    const chip = document.createElement('span')
+    chip.className = 'chip'
+    chip.textContent = topic
+    addMeta.appendChild(chip)
+  }
+  if (!addMeta.children.length) {
+    const empty = document.createElement('span')
+    empty.className = 'empty'
+    empty.textContent = '仓库没有额外信息'
+    addMeta.appendChild(empty)
+  }
+}
 const addConfirm = document.getElementById('add-confirm')
 const addLookup = document.getElementById('add-lookup')
 let addDraft = null
+function syncAddConfirm() {
+  if (!addDraft) { addConfirm.disabled = true; return }
+  addConfirm.disabled = addWhyInput.value.trim().length < 4
+}
+addWhyInput.addEventListener('input', syncAddConfirm)
 
 function setHint(text, isError = false) {
   addHint.textContent = text
@@ -1360,20 +1424,18 @@ async function lookupAdd() {
       return
     }
     addDraft = out.draft
+    addMetaDraft = out.draft
     addTitleInput.value = out.draft.titleZh
     addDescInput.value = out.draft.descZh
     addWhyInput.value = ''
-    addWhyInput.placeholder = '一句它好在哪里（可稍后补）'
-    addCategory.value = out.draft.category
+    addWhyInput.placeholder = '一句话说明它好在哪里（必填，至少 4 个字）'
     addCatNew.value = ''
-    document.getElementById('add-cat-new-field').hidden = true
-    addCategory.value = out.draft.category
-    document.getElementById('add-language').value = out.draft.language || ''
-    document.getElementById('add-license').value = out.draft.license || ''
-    document.getElementById('add-topics').value = (out.draft.topics || []).join(', ')
+    setAddCategory(out.draft.category)
+    renderAddMeta(out.draft)
+    syncAddConfirm()
     addPreview.hidden = false
-    addConfirm.disabled = false
-    setHint('已生成，可修改后点「确认添加」。')
+    syncAddConfirm()
+    setHint('已生成；填一句「为什么值得收」后即可添加。')
   } catch (error) {
     setHint('网络异常，稍后再试。', true)
   } finally {
@@ -1384,6 +1446,7 @@ async function lookupAdd() {
 
 async function confirmAdd() {
   if (!addDraft) return
+  if (addWhyInput.value.trim().length < 4) { setHint('写一句它好在哪里（至少 4 个字）。', true); return }
   addConfirm.disabled = true
   addConfirm.textContent = '添加中…'
   try {
@@ -1395,11 +1458,11 @@ async function confirmAdd() {
         titleZh: addTitleInput.value.trim(),
         descZh: addDescInput.value.trim(),
         why: addWhyInput.value.trim(),
-        category: addCategory.value === '__new' ? (addDraft.category || 'tech') : addCategory.value,
-        tags: addCategory.value === '__new' && addCatNew.value.trim() ? [addCatNew.value.trim()] : [],
-        language: document.getElementById('add-language').value.trim(),
-        license: document.getElementById('add-license').value.trim(),
-        topics: document.getElementById('add-topics').value.trim(),
+        category: addCategoryValue === '__new' ? (addDraft.category || 'tech') : addCategoryValue,
+        tags: addCategoryValue === '__new' && addCatNew.value.trim() ? [addCatNew.value.trim()] : [],
+        language: (addMetaDraft && addMetaDraft.language) || '',
+        license: (addMetaDraft && addMetaDraft.license) || '',
+        topics: ((addMetaDraft && addMetaDraft.topics) || []).join(', '),
       }),
     })
     const out = await response.json()
