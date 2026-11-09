@@ -254,7 +254,7 @@ ${tags.length ? 'tags: [' + tags.join(', ') + ']\n' : ''}why: ${draft.why}
 
 ## 它是什么
 
-${draft.descZh}${info.description ? `
+${draft.descZh || info.description || '（仓库没有描述）'}${info.description && draft.descZh ? `
 
 原仓库描述：${info.description}` : ''}
 

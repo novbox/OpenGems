@@ -46,9 +46,12 @@ function pick(rules, text) {
   return ''
 }
 
+/**
+ * 标题默认就用仓库名：项目名本身就是最好的标识，
+ * 用「UI 组件库」「开源项目」这类通用词会让多张卡片撞名。
+ */
 export function zhTitle(item) {
-  const text = `${item.name ?? ''} ${item.description ?? ''} ${(item.topics ?? []).join(' ')}`
-  return pick(TYPE_RULES, text) || '开源项目'
+  return String(item.name ?? '').trim() || String(item.fullName ?? '').split('/').pop() || ''
 }
 
 /**

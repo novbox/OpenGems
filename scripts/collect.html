@@ -344,7 +344,7 @@ main.wrap{padding-bottom:var(--s-7)}
   .field{margin-bottom:var(--s-2)}
   .field>span{display:block;font-size:var(--fs-label);line-height:16px;color:var(--muted);margin-bottom:4px}
   .field input,.field textarea{font-size:var(--fs-small);padding:6px 10px;border-radius:8px;height:32px}
-  .field textarea{height:auto;min-height:64px;padding:8px 10px;line-height:1.6}
+  .field textarea{height:132px;min-height:132px;padding:8px 10px;line-height:1.6;resize:none}
   .field-row button{height:32px;font-size:var(--fs-small);border-radius:8px}
   .add-meta{display:flex;flex-wrap:wrap;gap:6px;min-height:32px;align-items:center}
   .add-meta .chip{font-size:var(--fs-label)}
@@ -513,9 +513,8 @@ main.wrap{padding-bottom:var(--s-7)}
     </label>
     <p class="add-hint" id="add-hint">粘贴仓库链接后点「生成」，会自动填好标题、简介和分类。</p>
     <div id="add-preview" hidden>
-      <label class="field"><span>中文标题</span><input id="add-title-input" type="text"></label>
-      <label class="field"><span>一句话简介</span><input id="add-desc-input" type="text"></label>
-      <label class="field"><span>为什么值得收</span><textarea id="add-why-input" rows="3"></textarea></label>
+      <label class="field"><span>标题</span><input id="add-title-input" type="text" placeholder="仓库名，或一句中文标题"></label>
+      <label class="field"><span>简介</span><textarea id="add-why-input" rows="6" placeholder="一两句话：它是什么、好在哪里（建议 60 字以内）"></textarea></label>
       <div class="field"><span>仓库信息</span><div class="add-meta" id="add-meta"></div></div>
       <div class="field"><span>分类</span>
         <div class="cats" id="add-cats"></div>
@@ -1330,7 +1329,6 @@ const addUrl = document.getElementById('add-url')
 const addHint = document.getElementById('add-hint')
 const addPreview = document.getElementById('add-preview')
 const addTitleInput = document.getElementById('add-title-input')
-const addDescInput = document.getElementById('add-desc-input')
 const addWhyInput = document.getElementById('add-why-input')
 const addCats = document.getElementById('add-cats')
 const addCatNew = document.getElementById('add-cat-new')
@@ -1437,16 +1435,14 @@ async function lookupAdd() {
     addDraft = out.draft
     addMetaDraft = out.draft
     addTitleInput.value = out.draft.titleZh
-    addDescInput.value = out.draft.descZh || out.draft.description || ''
-    addWhyInput.value = ''
-    addWhyInput.placeholder = '一句话说明它好在哪里（必填，至少 4 个字）'
+    addWhyInput.value = out.draft.descZh || out.draft.description || ''
     addCatNew.value = ''
     setAddCategory(out.draft.category)
     renderAddMeta(out.draft)
     syncAddConfirm()
     addPreview.hidden = false
     syncAddConfirm()
-    setHint('已生成；填一句「为什么值得收」后即可添加。')
+    setHint('已生成；确认「简介」后即可添加。')
   } catch (error) {
     setHint('网络异常，稍后再试。', true)
   } finally {
@@ -1457,7 +1453,7 @@ async function lookupAdd() {
 
 async function confirmAdd() {
   if (!addDraft) return
-  if (addWhyInput.value.trim().length < 4) { setHint('写一句它好在哪里（至少 4 个字）。', true); return }
+  if (addWhyInput.value.trim().length < 4) { setHint('简介至少写 4 个字。', true); return }
   addConfirm.disabled = true
   addConfirm.textContent = '添加中…'
   try {
@@ -1467,7 +1463,7 @@ async function confirmAdd() {
       body: JSON.stringify({
         url: addDraft.url,
         titleZh: addTitleInput.value.trim(),
-        descZh: addDescInput.value.trim(),
+        descZh: '',
         why: addWhyInput.value.trim(),
         category: addCategoryValue === '__new' ? (addDraft.category || 'tech') : addCategoryValue,
         tags: addCategoryValue === '__new' && addCatNew.value.trim() ? [addCatNew.value.trim()] : [],
