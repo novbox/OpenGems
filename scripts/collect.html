@@ -319,7 +319,8 @@ main{padding:var(--s-2) 0 var(--s-5)}
   .chip.outline{display:inline-flex;align-items:center;height:22px;background:transparent;border:1px solid var(--line);color:var(--muted);font-size:12px;line-height:1;padding:0 9px;border-radius:8px;white-space:nowrap}
   .repo-actions{display:flex;align-items:center;gap:10px;margin:24px 0 0}
   .repo-actions .save.pill{height:36px;min-width:128px;padding:0 24px;border-radius:var(--r-pill);border:1px solid color-mix(in srgb,var(--ok) 46%,transparent);background:color-mix(in srgb,var(--ok) 12%,transparent);color:var(--ok);font-size:14px;font-weight:600;text-align:center}
-  .repo-actions .save.pill.done{border-color:var(--line);background:transparent;color:var(--muted);cursor:default}
+  .repo-actions .save.pill.saved{border-color:color-mix(in srgb,var(--danger) 46%,transparent);background:color-mix(in srgb,var(--danger) 10%,transparent);color:var(--danger)}
+  .repo-actions .save.pill.armed{border-color:color-mix(in srgb,var(--danger) 62%,transparent);background:color-mix(in srgb,var(--danger) 20%,transparent);color:var(--danger)}
   .repo-actions .btn.ghost-pill{display:inline-flex;align-items:center;height:36px;padding:0 18px;border:1px solid var(--line);border-radius:var(--r-pill);background:rgba(255,255,255,.04);color:var(--text);font-size:14px;text-decoration:none}
   .repo-cats{margin-top:24px}
   .repo-cats .lab{display:block;font-size:12px;font-weight:500;letter-spacing:.04em;color:var(--muted);opacity:.8;margin-bottom:9px;padding-left:16px}
@@ -1252,9 +1253,21 @@ async function renderRepo(fullName) {
   }
 
   const syncSaveButton = () => {
-    save.className = 'save pill' + (isSaved ? ' done' : '') + (armed ? ' armed' : '')
-    save.textContent = armed ? '确认取消' : (isSaved ? '已收藏' : '收藏')
+    save.className = 'save pill' + (isSaved ? ' saved' : '') + (armed ? ' armed' : '')
+    save.textContent = armed ? '确认取消' : (isSaved ? '取消收藏' : '收藏')
   }
+
+  const disarm = () => {
+    if (!armed) return
+    clearTimeout(armTimer)
+    armed = false
+    if (save.isConnected) { syncSaveButton(); renderCats() }
+  }
+  document.addEventListener('click', (event) => {
+    if (!armed || !save.isConnected) return
+    if (event.target === save) return
+    disarm()
+  })
 
   save.onclick = async () => {
     if (armed) {
@@ -1477,6 +1490,7 @@ function showDetail(item) {
     save.textContent = '取消收藏'
     save.className = 'btn danger'
     save.onclick = async () => {
+      if (!armUnsave(save)) return
       await fetch('/api/unsave', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ file: item.savedFile }) })
       closeDetail()
       await load()
