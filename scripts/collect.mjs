@@ -233,7 +233,7 @@ function buildDraft(info) {
   return { ...info, name, titleZh, descZh, why: descZh, category: guessCategory({ name, description: info.description, topics: info.topics }) }
 }
 
-function writeInboxCard(info, draft) {
+function writeInboxCard(info, draft, tags = []) {
   const date = today()
   const file = `${info.fullName.replace('/', '--')}.md`.toLowerCase()
   const path = dataPath('inbox', file)
@@ -249,7 +249,7 @@ added: ${date}
 last_reviewed: ${date}
 status: candidate
 category: ${draft.category}
-why: ${draft.why}
+${tags.length ? 'tags: [' + tags.join(', ') + ']\n' : ''}why: ${draft.why}
 ---
 
 ## 它是什么
@@ -478,10 +478,22 @@ const server = createServer(async (req, res) => {
         why: String(body.why ?? '').trim() || base.why,
         category: ['design', 'creative', 'fun', 'tech'].includes(body.category) ? body.category : base.category,
       }
+      const tags = Array.isArray(body.tags)
+        ? body.tags.map((tag) => String(tag).trim().slice(0, 12)).filter(Boolean).slice(0, 4)
+        : []
       const file = `${info.fullName.replace('/', '--')}.md`.toLowerCase()
       if (existsSync(dataPath('inbox', file))) return json(res, 200, { ok: false, reason: 'exists' })
-      writeInboxCard(info, draft)
+      writeInboxCard(info, draft, tags)
       upsertPool(info, draft)
+      if (tags.length) {
+        const state = readTagState()
+        state.items[info.fullName] = tags.map((name) => ({ name, auto: false }))
+        for (const name of tags) {
+          if (!SUBS.includes(name) && !state.categories.includes(name)) state.categories.push(name)
+        }
+        writeTagState(state)
+      }
+      scheduleSync()
       return json(res, 200, { ok: true, fullName: info.fullName, file })
     }
     if (url.pathname === '/api/subcategories' && req.method === 'GET') {

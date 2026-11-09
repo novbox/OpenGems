@@ -336,6 +336,7 @@ main{padding:var(--s-2) 0 var(--s-5)}
   .repo-view .readme{margin-top:64px}
   @media (max-width:820px){.repo-top{grid-template-columns:1fr;gap:18px}.repo-side{gap:24px}}
   html.no-blur header,html.no-blur .repo-sticky{backdrop-filter:none}
+  .field[hidden]{display:none}
 </style>
 </head>
 <body>
@@ -507,8 +508,10 @@ main{padding:var(--s-2) 0 var(--s-5)}
           <option value="creative">创意</option>
           <option value="fun">趣味</option>
           <option value="tech">技术</option>
+          <option value="__new">＋ 新建分类…</option>
         </select>
       </label>
+      <label class="field" id="add-cat-new-field" hidden><span>新分类名称</span><input id="add-cat-new" type="text" maxlength="12" placeholder="如 终端工具"></label>
     </div>
     <div class="modal-actions">
       <button class="btn ghost" id="add-cancel" type="button">取消</button>
@@ -1311,6 +1314,12 @@ const addTitleInput = document.getElementById('add-title-input')
 const addDescInput = document.getElementById('add-desc-input')
 const addWhyInput = document.getElementById('add-why-input')
 const addCategory = document.getElementById('add-category')
+const addCatNew = document.getElementById('add-cat-new')
+const addCatNewField = document.getElementById('add-cat-new-field')
+addCategory.addEventListener('change', () => {
+  addCatNewField.hidden = addCategory.value !== '__new'
+  if (addCategory.value === '__new') addCatNew.focus()
+})
 const addConfirm = document.getElementById('add-confirm')
 const addLookup = document.getElementById('add-lookup')
 let addDraft = null
@@ -1353,7 +1362,11 @@ async function lookupAdd() {
     addDraft = out.draft
     addTitleInput.value = out.draft.titleZh
     addDescInput.value = out.draft.descZh
-    addWhyInput.value = out.draft.why
+    addWhyInput.value = ''
+    addWhyInput.placeholder = '一句它好在哪里（可稍后补）'
+    addCategory.value = out.draft.category
+    addCatNew.value = ''
+    document.getElementById('add-cat-new-field').hidden = true
     addCategory.value = out.draft.category
     document.getElementById('add-language').value = out.draft.language || ''
     document.getElementById('add-license').value = out.draft.license || ''
@@ -1382,7 +1395,8 @@ async function confirmAdd() {
         titleZh: addTitleInput.value.trim(),
         descZh: addDescInput.value.trim(),
         why: addWhyInput.value.trim(),
-        category: addCategory.value,
+        category: addCategory.value === '__new' ? (addDraft.category || 'tech') : addCategory.value,
+        tags: addCategory.value === '__new' && addCatNew.value.trim() ? [addCatNew.value.trim()] : [],
         language: document.getElementById('add-language').value.trim(),
         license: document.getElementById('add-license').value.trim(),
         topics: document.getElementById('add-topics').value.trim(),
