@@ -1129,6 +1129,16 @@ async function renderRepo(fullName) {
       pop.style.top = (rect.bottom + window.scrollY + 6) + 'px'
       pop.onclick = (event) => event.stopPropagation()
       document.body.appendChild(pop)
+      const close = (event) => {
+        if (pop.contains(event.target) || event.target === more) return
+        pop.remove()
+        document.removeEventListener('click', close, true)
+        window.removeEventListener('scroll', close, true)
+      }
+      setTimeout(() => {
+        document.addEventListener('click', close, true)
+        window.addEventListener('scroll', close, true)
+      }, 0)
     }
     tagsRow.appendChild(more)
   }
