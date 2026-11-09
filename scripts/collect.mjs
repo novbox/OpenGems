@@ -310,15 +310,22 @@ function readTagState() {
   let raw = null
   try { raw = JSON.parse(readFileSync(subsFile(), 'utf8')) } catch { raw = null }
   if (!raw || typeof raw !== 'object' || Array.isArray(raw)) return { items: {}, categories: [] }
+  const alive = (items) => {
+    const out = {}
+    for (const [key, value] of Object.entries(items || {})) {
+      if (existsSync(inboxFile(key))) out[key] = value
+    }
+    return out
+  }
   if (raw.items || raw.categories) {
-    return { items: raw.items || {}, categories: Array.isArray(raw.categories) ? raw.categories : [] }
+    return { items: alive(raw.items), categories: Array.isArray(raw.categories) ? raw.categories : [] }
   }
   // 旧格式：{ "owner/repo": ["图标"] }
   const items = {}
   for (const [key, value] of Object.entries(raw)) {
     if (Array.isArray(value)) items[key] = value.map((name) => ({ name, auto: false }))
   }
-  return { items, categories: [] }
+  return { items: alive(items), categories: [] }
 }
 function writeTagState(state) {
   mkdirSync(dataPath('data'), { recursive: true })
@@ -392,13 +399,12 @@ const server = createServer(async (req, res) => {
         const result = saveItem(item, category, { tags, topics: item.topics })
         if (result.ok) {
           const state = readTagState()
-          if (tags.length) {
-            state.items[item.fullName] = tags
-            for (const tag of tags) {
-              if (!SUBS.includes(tag.name) && !state.categories.includes(tag.name)) state.categories.push(tag.name)
-            }
-            writeTagState(state)
+          if (tags.length) state.items[item.fullName] = tags
+          else delete state.items[item.fullName]
+          for (const tag of tags) {
+            if (!SUBS.includes(tag.name) && !state.categories.includes(tag.name)) state.categories.push(tag.name)
           }
+          writeTagState(state)
           scheduleSync()
         }
         return json(res, 200, { ...result, fullName: item.fullName })
