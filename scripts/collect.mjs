@@ -3,6 +3,7 @@
 // 用法：node scripts/collect.mjs [--port 8899] [--no-open]
 import { createServer } from 'node:http'
 import { ROOT, DATA, dataPath, rootPath } from './paths.mjs'
+import { scheduleSync, syncNow, syncStatus } from './sync.mjs'
 import { readFileSync, writeFileSync, existsSync, mkdirSync, readdirSync, unlinkSync } from 'node:fs'
 import './env.mjs'
 import { zhTitle, zhDesc, guessCategory } from './title.mjs'
@@ -362,6 +363,7 @@ const server = createServer(async (req, res) => {
         const item = category.items.find((entry) => entry.n === n)
         if (!item) continue
         const result = saveItem(item, category)
+        if (result.ok) scheduleSync()
         return json(res, 200, { ...result, fullName: item.fullName })
       }
       return json(res, 404, { ok: false, reason: 'not-found' })
@@ -369,6 +371,7 @@ const server = createServer(async (req, res) => {
     if (url.pathname === '/api/discover' && req.method === 'POST') {
       try {
         const info = await discover()
+        scheduleSync()
         return json(res, 200, { ok: true, added: info.added, total: info.total })
       } catch (error) {
         const stderr = String(error?.stderr ?? '')
@@ -448,7 +451,13 @@ const server = createServer(async (req, res) => {
       if (subs.length) all[fullName] = subs
       else delete all[fullName]
       writeSubs(all)
+      scheduleSync()
       return json(res, 200, { ok: true, items: all })
+    }
+    if (url.pathname === '/api/sync') {
+      if (req.method === 'GET') return json(res, 200, { ok: true, ...syncStatus() })
+      const result = await syncNow()
+      return json(res, 200, { ok: result.ok, ...result, ...syncStatus() })
     }
     if (url.pathname === '/api/saved' && req.method === 'GET') {
       return json(res, 200, { ok: true, items: readSaved() })
@@ -459,6 +468,7 @@ const server = createServer(async (req, res) => {
       if (!/^[A-Za-z0-9._-]+\.md$/.test(file) || file === 'README.md') return json(res, 400, { ok: false })
       try {
         unlinkSync(dataPath('inbox', file))
+        scheduleSync()
         return json(res, 200, { ok: true })
       } catch {
         return json(res, 200, { ok: false })
@@ -507,6 +517,7 @@ function openBrowser() {
 }
 
 server.listen(PORT, '127.0.0.1', () => {
+  syncNow({ pullOnly: true }).catch(() => {})
   console.log(`OpenGems · 收藏台：http://127.0.0.1:${PORT}`)
   console.log('按 Ctrl+C 停止。')
   openBrowser()

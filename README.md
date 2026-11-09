@@ -13,6 +13,22 @@
 2. **归**：每周清一次 `inbox/`，按主题挪进 `topics/<主题>/`，顺手更新该主题的 `README.md` 索引。
 3. **回顾**：每月第一个周六跑一遍下面的流程，30 分钟。
 
+## 数据与同步
+
+数据（`inbox/`、`topics/`、`candidates/`、`data/`、`discover.json`）默认和代码同目录；多机共用一份时，用 `OPEN_GEMS_DATA` 把数据指到独立目录，那个目录是一个 Git 仓库：
+
+```bash
+# 数据仓库：novbox/DSH-Studio 的 opengems 分支
+git clone -b opengems git@github.com:novbox/DSH-Studio.git ~/YeeAIGC/opengems-data
+export OPEN_GEMS_DATA=~/YeeAIGC/opengems-data
+```
+
+- 保存收藏、取消收藏、改子分类、跑「换一批」之后，2.5 秒去抖自动提交并推送
+- 启动时先 `pull --rebase` 拉一次
+- 推送失败会拉一次重推一次，仍失败只记 `lastError`，不动本地文件
+- 冲突时 `rebase --abort`，保留本地改动，等下一次或手动处理
+- `GET/POST /api/sync` 可查状态、手动同步
+
 ## 目录
 
 | 路径 | 作用 |
