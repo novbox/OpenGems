@@ -335,6 +335,11 @@ main{padding:var(--s-2) 0 var(--s-5)}
   .repo-cats .hint{margin-top:12px;padding-left:16px;font-size:12px;color:var(--muted);opacity:.78;line-height:1.7}
   .repo-view .readme{margin-top:64px}
   @media (max-width:820px){.repo-top{grid-template-columns:1fr;gap:18px}.repo-side{gap:24px}}
+  html.no-blur header,html.no-blur .repo-sticky{backdrop-filter:none}
+  /* 拖拽改变窗口尺寸期间降级：关掉毛玻璃与闪光动画，松手后自动恢复 */
+  html.is-resizing header,html.is-resizing .repo-sticky{backdrop-filter:none}
+  html.is-resizing .logo-fx{display:none}
+  html.is-resizing .hero h1 em{animation:none}
 </style>
 </head>
 <body>
@@ -577,9 +582,14 @@ function renderTabs() {
   requestAnimationFrame(() => tabsEl.classList.toggle('is-scrollable', tabsEl.scrollWidth > tabsEl.clientWidth + 1))
 }
 
+let resizeIdleTimer = null
 window.addEventListener('resize', () => {
+  const root = document.documentElement
+  root.classList.add('is-resizing')
+  clearTimeout(resizeIdleTimer)
+  resizeIdleTimer = setTimeout(() => root.classList.remove('is-resizing'), 180)
   if (tabsEl) tabsEl.classList.toggle('is-scrollable', tabsEl.scrollWidth > tabsEl.clientWidth + 1)
-})
+}, { passive: true })
 
 let armedUnsaveButton = null
 
@@ -1543,6 +1553,9 @@ document.getElementById('q').addEventListener('input', (event) => {
   render()
 })
 load().then(() => { if (/^#\/repo\//.test(location.hash)) handleRoute() }).catch((error) => { main.innerHTML = '<div class="empty">加载失败：' + error.message + '</div>' })
+</script>
+<script>
+  if (new URLSearchParams(location.search).has('noblur')) document.documentElement.classList.add('no-blur')
 </script>
 </body>
 </html>
