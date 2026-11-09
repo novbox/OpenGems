@@ -116,10 +116,11 @@ function readRepoCache(fullName) {
   }
 }
 
+const README_RENDER_VERSION = 2
 function writeRepoCache(fullName, repo, readme) {
   try {
     mkdirSync(REPO_CACHE_DIR, { recursive: true })
-    writeFileSync(repoCachePath(fullName), JSON.stringify({ savedAt: Date.now(), repo, readme }))
+    writeFileSync(repoCachePath(fullName), JSON.stringify({ savedAt: Date.now(), renderer: README_RENDER_VERSION, repo, readme }))
   } catch {}
 }
 
@@ -424,7 +425,8 @@ const server = createServer(async (req, res) => {
     if (url.pathname === '/api/repo' && req.method === 'GET') {
       const parsed = parseRepoUrl(url.searchParams.get('name') ?? '')
       if (!parsed) return json(res, 400, { ok: false, reason: 'bad-name' })
-      const cached = readRepoCache(parsed.fullName)
+      const rawCached = readRepoCache(parsed.fullName)
+      const cached = rawCached && rawCached.renderer === README_RENDER_VERSION ? rawCached : (rawCached ? { ...rawCached, readme: '' } : null)
       const ttl = cached?.readme ? 24 * 3600 * 1000 : 10 * 60 * 1000
       if (cached && Date.now() - cached.savedAt < ttl) {
         return json(res, 200, { ok: true, repo: cached.repo, readme: cached.readme, cached: true, degraded: !cached.readme })
