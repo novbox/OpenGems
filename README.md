@@ -10,6 +10,8 @@
 
 ![界面](assets/screenshot.png)
 
+最新版本：[Releases](https://github.com/novbox/OpenGems/releases) · 下载源码包或查看版本说明
+
 ## 快速开始
 
 需要 Node.js 20+，无需安装依赖：
