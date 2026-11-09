@@ -2,10 +2,9 @@
 // 回顾体检：统计主题与状态，列出超过 90 天未回顾、超过 180 天需决定去留、缺字段和 inbox 积压。
 // 零依赖，Node 18+ 可直接运行：node scripts/review-report.mjs
 import { readdirSync, readFileSync } from 'node:fs'
-import { join, dirname } from 'node:path'
-import { fileURLToPath } from 'node:url'
+import { DATA, dataPath } from './paths.mjs'
+import { join } from 'node:path'
 
-const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..')
 const STALE_DAYS = 90
 const DECIDE_DAYS = 180
 const REQUIRED = ['repo', 'title', 'status', 'added', 'last_reviewed', 'why']
@@ -46,18 +45,18 @@ function daysSince(iso) {
   return Math.floor((Date.now() - time) / 86400000)
 }
 
-const topics = readDir(join(ROOT, 'topics'))
+const topics = readDir(dataPath('topics'))
   .filter((entry) => entry.isDirectory())
   .map((entry) => entry.name)
 
 const cards = []
 for (const topic of topics) {
-  for (const file of walk(join(ROOT, 'topics', topic))) {
-    cards.push({ file: file.slice(ROOT.length + 1), topic, meta: frontMatter(readFileSync(file, 'utf8')) })
+  for (const file of walk(dataPath('topics', topic))) {
+    cards.push({ file: file.slice(DATA.length + 1), topic, meta: frontMatter(readFileSync(file, 'utf8')) })
   }
 }
 
-const inbox = walk(join(ROOT, 'inbox'))
+const inbox = walk(dataPath('inbox'))
 const statusCount = {}
 for (const card of cards) {
   const status = String(card.meta.status ?? 'missing')
@@ -111,4 +110,4 @@ for (const item of incomplete) console.log(`- ${item.file} — 缺 ${item.missin
 
 console.log('\n## inbox 待清理')
 if (inbox.length === 0) console.log('- 无')
-for (const file of inbox) console.log(`- ${file.slice(ROOT.length + 1)}`)
+for (const file of inbox) console.log(`- ${file.slice(DATA.length + 1)}`)

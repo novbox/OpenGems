@@ -2,12 +2,11 @@
 // 把最近一次候选清单里的编号收进 inbox/：node scripts/save.mjs 3 7 12
 // 生成 inbox/<owner>--<repo>.md，why 先用仓库描述占位，回顾时补。
 import { readFileSync, writeFileSync, existsSync, mkdirSync } from 'node:fs'
-import { join, dirname } from 'node:path'
-import { fileURLToPath } from 'node:url'
+import { DATA, dataPath } from './paths.mjs'
+import { join } from 'node:path'
 
-const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..')
-const LATEST = join(ROOT, 'candidates', 'latest.json')
-const INBOX = join(ROOT, 'inbox')
+const LATEST = dataPath('candidates', 'latest.json')
+const INBOX = dataPath('inbox')
 const date = new Date().toISOString().slice(0, 10)
 
 const nums = process.argv.slice(2).map((value) => Number(value)).filter((value) => Number.isInteger(value) && value > 0)
@@ -34,7 +33,7 @@ for (const n of nums) {
   const [owner, repo] = String(item.fullName).split('/')
   const file = join(INBOX, `${owner}--${repo}.md`.toLowerCase())
   if (existsSync(file)) {
-    console.error(`跳过 ${n}：${file.replace(ROOT + '/', '')} 已存在`)
+    console.error(`跳过 ${n}：${file.replace(DATA + '/', '')} 已存在`)
     continue
   }
   const why = item.description ? item.description.replace(/\s+/g, ' ').slice(0, 160) : '（待补：它好在哪里）'

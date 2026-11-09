@@ -2,24 +2,23 @@
 // 本地收藏台：浏览器里点「收藏」直接把候选写进 inbox/。
 // 用法：node scripts/collect.mjs [--port 8899] [--no-open]
 import { createServer } from 'node:http'
+import { ROOT, DATA, dataPath, rootPath } from './paths.mjs'
 import { readFileSync, writeFileSync, existsSync, mkdirSync, readdirSync, unlinkSync } from 'node:fs'
 import './env.mjs'
 import { zhTitle, zhDesc, guessCategory } from './title.mjs'
 import { mdToHtml } from './markdown.mjs'
-import { join, dirname, extname } from 'node:path'
-import { fileURLToPath } from 'node:url'
+import { join, extname } from 'node:path'
 import { execFile } from 'node:child_process'
 import { promisify } from 'node:util'
 import { spawn } from 'node:child_process'
 
-const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..')
 const execFileAsync = promisify(execFile)
 const args = process.argv.slice(2)
 const portArg = args.indexOf('--port')
 const PORT = Number(portArg >= 0 ? args[portArg + 1] : process.env.PORT || 8899)
 const noOpen = args.includes('--no-open')
 const today = () => new Date().toISOString().slice(0, 10)
-const candidatesPath = join(ROOT, 'candidates', 'latest.json')
+const candidatesPath = dataPath('candidates', 'latest.json')
 
 function readData() {
   return JSON.parse(readFileSync(candidatesPath, 'utf8'))
@@ -27,13 +26,13 @@ function readData() {
 
 function inboxFile(fullName) {
   const [owner, repo] = String(fullName).split('/')
-  return join(ROOT, 'inbox', `${owner}--${repo}`.toLowerCase() + '.md')
+  return dataPath('inbox', `${owner}--${repo}`.toLowerCase() + '.md')
 }
 
 function saveItem(item, category) {
   const file = inboxFile(item.fullName)
   if (existsSync(file)) return { ok: false, reason: 'exists', file }
-  mkdirSync(join(ROOT, 'inbox'), { recursive: true })
+  mkdirSync(dataPath('inbox'), { recursive: true })
   const date = today()
   const description = String(item.description || '').replace(/\s+/g, ' ').trim()
   const why = description ? description.slice(0, 160) : '（待补：它好在哪里）'
@@ -69,7 +68,7 @@ ${description || '（仓库没有描述）'}
 
 
 function readSaved() {
-  const dir = join(ROOT, 'inbox')
+  const dir = dataPath('inbox')
   const items = []
   for (const name of readdirSync(dir)) {
     if (!name.endsWith('.md') || name === 'README.md') continue
@@ -100,7 +99,7 @@ function readSaved() {
 
 
 
-const REPO_CACHE_DIR = join(ROOT, 'cache', 'repos')
+const REPO_CACHE_DIR = dataPath('cache', 'repos')
 
 function repoCachePath(fullName) {
   return join(REPO_CACHE_DIR, String(fullName).replace('/', '__').toLowerCase() + '.json')
@@ -235,7 +234,7 @@ function buildDraft(info) {
 function writeInboxCard(info, draft) {
   const date = today()
   const file = `${info.fullName.replace('/', '--')}.md`.toLowerCase()
-  const path = join(ROOT, 'inbox', file)
+  const path = dataPath('inbox', file)
   const topicsLine = info.topics.slice(0, 5).join('、')
   const content = `---
 repo: ${info.url}
@@ -301,16 +300,16 @@ function upsertPool(info, draft) {
 
 
 for (const name of ['inbox', 'topics', 'archive', 'reviews', 'candidates', 'data']) {
-  mkdirSync(join(ROOT, name), { recursive: true })
+  mkdirSync(dataPath(name), { recursive: true })
 }
 
 const SUBS = ['图标', '动效', '组件库', '设计系统']
-const subsFile = () => join(ROOT, 'data', 'subcategories.json')
+const subsFile = () => dataPath('data', 'subcategories.json')
 function readSubs() {
   try { return JSON.parse(readFileSync(subsFile(), 'utf8')) } catch { return {} }
 }
 function writeSubs(value) {
-  mkdirSync(join(ROOT, 'data'), { recursive: true })
+  mkdirSync(dataPath('data'), { recursive: true })
   writeFileSync(subsFile(), JSON.stringify(value, null, 2) + '\n')
 }
 
@@ -331,7 +330,7 @@ function readBody(req) {
 }
 
 async function discover() {
-  const { stdout } = await execFileAsync(process.execPath, [join(ROOT, 'scripts', 'discover.mjs')], { cwd: ROOT, timeout: 90000 })
+  const { stdout } = await execFileAsync(process.execPath, [rootPath('scripts', 'discover.mjs')], { cwd: ROOT, env: { ...process.env, OPEN_GEMS_DATA: DATA }, timeout: 90000 })
   const match = /RESULT (\{.*\})/.exec(String(stdout ?? ''))
   return match ? JSON.parse(match[1]) : { added: 0, total: 0 }
 }
@@ -346,8 +345,8 @@ const server = createServer(async (req, res) => {
         for (const item of category.items) if (existsSync(inboxFile(item.fullName))) saved.push(item.fullName)
       }
       const config = (() => {
-        for (const name of ['discover.json', 'discover.default.json']) {
-          try { return JSON.parse(readFileSync(join(ROOT, name), 'utf8')) } catch {}
+        for (const candidate of [dataPath('discover.json'), rootPath('discover.default.json')]) {
+          try { return JSON.parse(readFileSync(candidate, 'utf8')) } catch {}
         }
         return {}
       })()
@@ -432,7 +431,7 @@ const server = createServer(async (req, res) => {
         category: ['design', 'creative', 'fun', 'tech'].includes(body.category) ? body.category : base.category,
       }
       const file = `${info.fullName.replace('/', '--')}.md`.toLowerCase()
-      if (existsSync(join(ROOT, 'inbox', file))) return json(res, 200, { ok: false, reason: 'exists' })
+      if (existsSync(dataPath('inbox', file))) return json(res, 200, { ok: false, reason: 'exists' })
       writeInboxCard(info, draft)
       upsertPool(info, draft)
       return json(res, 200, { ok: true, fullName: info.fullName, file })
@@ -459,7 +458,7 @@ const server = createServer(async (req, res) => {
       const file = String(body.file || '')
       if (!/^[A-Za-z0-9._-]+\.md$/.test(file) || file === 'README.md') return json(res, 400, { ok: false })
       try {
-        unlinkSync(join(ROOT, 'inbox', file))
+        unlinkSync(dataPath('inbox', file))
         return json(res, 200, { ok: true })
       } catch {
         return json(res, 200, { ok: false })
@@ -469,7 +468,7 @@ const server = createServer(async (req, res) => {
       const name = url.pathname.slice('/assets/'.length)
       if (!/^[A-Za-z0-9._-]+$/.test(name)) { res.writeHead(404); return res.end('not found') }
       try {
-        const file = join(ROOT, 'assets', name)
+        const file = rootPath('assets', name)
         const type = extname(file).toLowerCase() === '.svg' ? 'image/svg+xml; charset=utf-8' : 'application/octet-stream'
         const body = readFileSync(file)
         res.writeHead(200, { 'content-type': type, 'cache-control': 'no-cache' })
@@ -480,7 +479,7 @@ const server = createServer(async (req, res) => {
       }
     }
     if (url.pathname === '/' || url.pathname === '/index.html') {
-      const html = readFileSync(join(ROOT, 'scripts', 'collect.html'))
+      const html = readFileSync(rootPath('scripts', 'collect.html'))
       res.writeHead(200, { 'content-type': 'text/html; charset=utf-8', 'cache-control': 'no-store' })
       return res.end(html)
     }

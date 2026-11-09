@@ -3,16 +3,15 @@
 // 用法：node scripts/discover.mjs [--per-category N] [--include-seen]
 // 可选环境变量 GITHUB_TOKEN（不设也能跑，未认证搜索限 10 次/分钟）。
 import './env.mjs'
+import { dataPath, rootPath } from './paths.mjs'
 import { readFileSync, writeFileSync, mkdirSync, existsSync } from 'node:fs'
 import { zhTitle, zhDesc } from './title.mjs'
-import { join, dirname } from 'node:path'
-import { fileURLToPath } from 'node:url'
+import { join } from 'node:path'
 
-const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..')
-const CONFIG_PATH = existsSync(join(ROOT, 'discover.json'))
-  ? join(ROOT, 'discover.json')
-  : join(ROOT, 'discover.default.json')
-const OUT_DIR = join(ROOT, 'candidates')
+const CONFIG_PATH = existsSync(dataPath('discover.json'))
+  ? dataPath('discover.json')
+  : rootPath('discover.default.json')
+const OUT_DIR = dataPath('candidates')
 const SEEN_PATH = join(OUT_DIR, 'seen.json')
 const TOKEN = process.env.GITHUB_TOKEN || process.env.GH_TOKEN || ''
 
@@ -65,7 +64,7 @@ function requireDir(dir) {
 
 function libraryIds() {
   const ids = new Set()
-  const dirs = ['topics', 'inbox', 'archive'].map((name) => join(ROOT, name))
+  const dirs = ['topics', 'inbox', 'archive'].map((name) => dataPath(name))
   for (const dir of dirs) {
     for (const file of walk(dir)) {
       const meta = frontMatter(readFileSync(file, 'utf8'))
