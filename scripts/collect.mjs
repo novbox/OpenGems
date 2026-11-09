@@ -386,8 +386,21 @@ const server = createServer(async (req, res) => {
       for (const category of data.categories) {
         const item = category.items.find((entry) => entry.n === n)
         if (!item) continue
-        const result = saveItem(item, category)
-        if (result.ok) scheduleSync()
+        const tags = Array.isArray(body.tags)
+          ? body.tags.map((tag) => ({ name: String(tag && tag.name ? tag.name : tag).trim().slice(0, 12), auto: Boolean(tag && tag.auto) })).filter((tag) => tag.name)
+          : []
+        const result = saveItem(item, category, { tags, topics: item.topics })
+        if (result.ok) {
+          const state = readTagState()
+          if (tags.length) {
+            state.items[item.fullName] = tags
+            for (const tag of tags) {
+              if (!SUBS.includes(tag.name) && !state.categories.includes(tag.name)) state.categories.push(tag.name)
+            }
+            writeTagState(state)
+          }
+          scheduleSync()
+        }
         return json(res, 200, { ...result, fullName: item.fullName })
       }
       return json(res, 404, { ok: false, reason: 'not-found' })
@@ -507,6 +520,12 @@ const server = createServer(async (req, res) => {
       if (!/^[A-Za-z0-9._-]+\.md$/.test(file) || file === 'README.md') return json(res, 400, { ok: false })
       try {
         unlinkSync(dataPath('inbox', file))
+        const state = readTagState()
+        let touched = false
+        for (const key of Object.keys(state.items)) {
+          if (inboxFile(key).endsWith(file)) { delete state.items[key]; touched = true }
+        }
+        if (touched) writeTagState(state)
         scheduleSync()
         return json(res, 200, { ok: true })
       } catch {
