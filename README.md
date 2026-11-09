@@ -77,7 +77,6 @@ scripts/collect.html       前端（单文件）
 scripts/discover.mjs       GitHub 搜索与候选池
 scripts/markdown.mjs       Markdown 渲染
 scripts/title.mjs          中文标题与摘要生成
-docs/DESIGN.md             设计规范
 ```
 
 ## License
