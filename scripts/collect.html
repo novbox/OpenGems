@@ -362,6 +362,12 @@ main.wrap{padding-bottom:var(--s-7)}
 .nav{gap:0}
 .nav .actions{flex:1 1 auto;min-width:0;margin-left:64px}
 .nav .search{flex:1 1 auto;min-width:0;margin:0 64px 0 0}
+
+.search input::-webkit-search-cancel-button,.search input::-webkit-search-decoration{-webkit-appearance:none;appearance:none;display:none}
+.search-clear{display:grid;place-items:center;flex:none;width:20px;height:20px;margin-left:auto;padding:0;border:0;border-radius:6px;background:transparent;color:var(--muted);cursor:pointer;transition:color .15s,background .15s}
+.search-clear[hidden]{display:none}
+.search-clear:hover{color:var(--text);background:color-mix(in srgb,var(--text) 8%,transparent)}
+.search-clear svg{width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:1;stroke-linecap:round}
 </style>
 </head>
 <body>
@@ -434,6 +440,9 @@ main.wrap{padding-bottom:var(--s-7)}
       <label class="search">
         <svg viewBox="0 0 16 16"><path d="M6.58727 11.8586C9.55061 11.8586 11.9529 9.45637 11.9529 6.49304C11.9529 3.5297 9.55061 1.12744 6.58727 1.12744C3.62394 1.12744 1.22168 3.5297 1.22168 6.49304C1.22168 9.45637 3.62394 11.8586 6.58727 11.8586Z"></path><path d="M10.2991 10.3933L14.7783 14.8725"></path></svg>
         <input id="q" type="search" placeholder="搜索" autocomplete="off">
+        <button class="search-clear" id="q-clear" type="button" aria-label="清除搜索" hidden>
+          <svg viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M2.5 2.5 13.5 13.5"/><path d="M13.5 2.5 2.5 13.5"/></svg>
+        </button>
       </label>
       <button class="icon-btn" id="open-add" type="button" title="添加收藏" aria-label="添加收藏">
         <svg viewBox="0 0 24 24"><path d="M12 3v18M3 12h18"></path></svg>
@@ -1632,10 +1641,22 @@ document.getElementById('discover').onclick = async (event) => {
     button.classList.remove('searching')
   }
 }
-document.getElementById('q').addEventListener('input', (event) => {
+const qInput = document.getElementById('q')
+const qClear = document.getElementById('q-clear')
+function syncClear() { qClear.hidden = !qInput.value }
+qInput.addEventListener('input', (event) => {
   query = event.target.value.trim().toLowerCase()
+  syncClear()
   render()
 })
+qClear.addEventListener('click', () => {
+  qInput.value = ''
+  query = ''
+  syncClear()
+  render()
+  qInput.focus()
+})
+syncClear()
 load().then(() => { if (/^#\/repo\//.test(location.hash)) handleRoute() }).catch((error) => { main.innerHTML = '<div class="empty">加载失败：' + error.message + '</div>' })
 </script>
 <script>
