@@ -1160,12 +1160,20 @@ async function renderRepo(fullName) {
     } catch (error) { toast('保存分类失败，稍后再试') }
   }
 
-  const setHint = (text) => { catsHint.textContent = text }
   let flashTimer = null
+  let flashMsg = ''
+  const renderHint = () => {
+    catsHint.textContent = flashMsg || (armed
+      ? '10 秒内再点一次确认取消；卡片会被删除，分类一并消失。'
+      : isSaved
+        ? '已收藏 · 归到：' + (picked.map((tag) => tag.name).join('、') || '未分类') + '；改动会自动同步。'
+        : '未收藏：虚线是待写入的分类，只在点「收藏」后才生效。')
+  }
   const flash = (text) => {
-    setHint(text)
+    flashMsg = text
+    renderHint()
     clearTimeout(flashTimer)
-    flashTimer = setTimeout(() => renderCats(), 2400)
+    flashTimer = setTimeout(() => { flashMsg = ''; renderHint() }, 2400)
   }
 
   const toggleCat = (name) => {
@@ -1236,9 +1244,7 @@ async function renderRepo(fullName) {
       input.onblur = commit
     }
     catsRow.appendChild(add)
-    if (armed) catsHint.textContent = '10 秒内再点一次确认取消；卡片会被删除，分类一并消失。'
-    else if (isSaved) catsHint.textContent = '已收藏 · 归到：' + (picked.map((tag) => tag.name).join('、') || '未分类') + '；改动会自动同步。'
-    else catsHint.textContent = '未收藏：虚线是待写入的分类，只在点「收藏」后才生效。'
+    renderHint()
   }
 
   const syncSaveButton = () => {
