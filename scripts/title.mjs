@@ -71,7 +71,7 @@ export function zhDesc(item) {
   const clauses = []
   if (language) clauses.push(`以 ${language} 编写的${glue}${type}`)
   else clauses.push(type)
-  if (trait) clauses.push(trait)
+  if (trait && !(language && trait.startsWith(language))) clauses.push(trait)
 
   if (!clauses.length) return ''
   const sentence = clauses.join('，')

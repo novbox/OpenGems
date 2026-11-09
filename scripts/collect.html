@@ -176,7 +176,7 @@ header{position:sticky;top:0;z-index:30;background:color-mix(in srgb,var(--bg) 7
 .add-hint{margin:0 0 var(--s-3);font-size:var(--fs-meta);line-height:var(--lh-meta);color:var(--muted)}
 .add-hint.error{color:var(--warn)}
 .modal-actions{display:flex;justify-content:flex-end;gap:var(--s-2);margin-top:var(--s-4)}
-.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;height:34px;padding:0 14px;border:1px solid var(--line);border-radius:var(--r-md);background:var(--panel);color:var(--text);font:inherit;font-size:var(--fs-small);line-height:1;cursor:pointer;text-decoration:none;transition:border-color .15s,background .15s,color .15s}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;height:32px;padding:0 14px;border:1px solid var(--line);border-radius:var(--r-sm);background:var(--panel);color:var(--text);font:inherit;font-size:var(--fs-small);line-height:1;cursor:pointer;text-decoration:none;transition:border-color .15s,background .15s,color .15s}
 .btn:hover{border-color:color-mix(in srgb,var(--accent) 45%,var(--line))}
 .btn.primary{background:var(--accent);border-color:var(--accent);color:#fff}
 .btn.primary:hover{filter:brightness(1.06);border-color:var(--accent)}
@@ -540,7 +540,7 @@ main.wrap{padding-bottom:var(--s-7)}
     </div>
     <div class="modal-actions">
       <button class="btn ghost" id="add-cancel" type="button">取消</button>
-      <button class="btn primary" id="add-confirm" type="button" disabled>确认添加</button>
+      <button class="btn primary" id="add-confirm" type="button" disabled>添加</button>
     </div>
   </div>
 </div>
@@ -1438,7 +1438,7 @@ function openAdd() {
   addUrl.value = ''
   addPreview.hidden = true
   addConfirm.disabled = true
-  addConfirm.textContent = '确认添加'
+  addConfirm.textContent = '添加'
   addModal.hidden = false
   setHint('粘贴仓库链接后点「生成」，会自动填好标题、简介和分类。')
   setTimeout(() => addUrl.focus(), 30)
@@ -1507,7 +1507,7 @@ async function confirmAdd() {
     if (!out.ok) {
       setHint(out.reason === 'exists' ? '这个仓库已经在收藏里了。' : '添加失败，稍后再试。', true)
       addConfirm.disabled = false
-      addConfirm.textContent = '确认添加'
+      addConfirm.textContent = '添加'
       return
     }
     closeAdd()
@@ -1516,7 +1516,7 @@ async function confirmAdd() {
   } catch (error) {
     setHint('网络异常，稍后再试。', true)
     addConfirm.disabled = false
-    addConfirm.textContent = '确认添加'
+    addConfirm.textContent = '添加'
   }
 }
 
