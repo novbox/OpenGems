@@ -305,6 +305,25 @@ for (const name of ['inbox', 'topics', 'archive', 'reviews', 'candidates', 'data
   mkdirSync(dataPath(name), { recursive: true })
 }
 
+const discoverFile = () => dataPath('discover.json')
+function readDiscoverConfig() {
+  for (const candidate of [discoverFile(), rootPath('discover.default.json')]) {
+    try { return JSON.parse(readFileSync(candidate, 'utf8')) } catch {}
+  }
+  return { perCategory: 8, minStars: 2000, categories: [] }
+}
+function writeDiscoverConfig(config) {
+  mkdirSync(dataPath('.'), { recursive: true })
+  writeFileSync(discoverFile(), JSON.stringify(config, null, 2) + '\n')
+}
+function slugId(label, taken) {
+  const latin = String(label).toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')
+  let id = latin || 'cat-' + Date.now().toString(36).slice(-4)
+  let n = 2
+  while (taken.has(id)) id = (latin || 'cat') + '-' + n++
+  return id
+}
+
 const SUBS = ['图标', '动效', '组件库', '设计系统']
 const subsFile = () => dataPath('data', 'subcategories.json')
 function readTagState() {
@@ -385,7 +404,67 @@ const server = createServer(async (req, res) => {
       })()
       const minStars = Number(config.minStars ?? 0)
       const categoryMin = Object.fromEntries((config.categories ?? []).map((category) => [category.id, Number(category.minStars ?? minStars)]))
-      return json(res, 200, { ...data, saved, minStars, categoryMin })
+      // 配置里新增但还没跑过「换一批」的分类也要出现在 tab 里
+      const merged = (config.categories ?? []).map((category) => {
+        const existing = (data.categories ?? []).find((entry) => entry.id === category.id)
+        return { id: category.id, label: category.label, items: existing ? existing.items : [] }
+      })
+      for (const category of data.categories ?? []) {
+        if (!merged.some((entry) => entry.id === category.id)) merged.push(category)
+      }
+      return json(res, 200, { ...data, categories: merged, saved, minStars, categoryMin })
+    }
+    if (url.pathname === '/api/categories' && req.method === 'GET') {
+      const config = readDiscoverConfig()
+      return json(res, 200, { ok: true, ...config })
+    }
+    if (url.pathname === '/api/categories' && req.method === 'POST') {
+      const body = await readBody(req)
+      const config = readDiscoverConfig()
+      const label = String(body.label ?? '').trim().slice(0, 8)
+      const query = String(body.query ?? '').trim()
+      const minStars = Math.max(0, Number(body.minStars) || 0)
+      if (!label || !query) return json(res, 400, { ok: false, reason: 'invalid' })
+      const taken = new Set((config.categories ?? []).map((category) => category.id))
+      const id = String(body.id ?? '').trim() || slugId(label, taken)
+      if (taken.has(id)) return json(res, 400, { ok: false, reason: 'duplicate' })
+      config.categories = [...(config.categories ?? []), { id, label, query, minStars }]
+      writeDiscoverConfig(config)
+      scheduleSync()
+      return json(res, 200, { ok: true, categories: config.categories })
+    }
+    if (url.pathname.startsWith('/api/categories/') && (req.method === 'PATCH' || req.method === 'DELETE')) {
+      const id = decodeURIComponent(url.pathname.slice('/api/categories/'.length))
+      const config = readDiscoverConfig()
+      const index = (config.categories ?? []).findIndex((category) => category.id === id)
+      if (index < 0) return json(res, 404, { ok: false, reason: 'not-found' })
+      if (req.method === 'PATCH') {
+        const body = await readBody(req)
+        const category = config.categories[index]
+        if (body.label !== undefined) category.label = String(body.label).trim().slice(0, 8) || category.label
+        if (body.query !== undefined) category.query = String(body.query).trim() || category.query
+        if (body.minStars !== undefined) category.minStars = Math.max(0, Number(body.minStars) || 0)
+        writeDiscoverConfig(config)
+        scheduleSync()
+        return json(res, 200, { ok: true, categories: config.categories })
+      }
+      // 删除：先把该分类下的卡片迁移到 tech，避免卡片失去归属
+      const query = new URLSearchParams(url.search)
+      const cards = []
+      for (const name of readdirSync(dataPath('inbox'))) {
+        if (!name.endsWith('.md') || name === 'README.md') continue
+        const text = readFileSync(dataPath('inbox', name), 'utf8')
+        if (new RegExp('^category:\\s*' + id + '\\s*$', 'm').test(text)) cards.push(name)
+      }
+      if (cards.length && query.get('force') !== '1') return json(res, 409, { ok: false, reason: 'in-use', count: cards.length })
+      for (const name of cards) {
+        const target = dataPath('inbox', name)
+        writeFileSync(target, readFileSync(target, 'utf8').replace(new RegExp('^category:\\s*' + id + '\\s*$', 'm'), 'category: tech'))
+      }
+      config.categories.splice(index, 1)
+      writeDiscoverConfig(config)
+      scheduleSync()
+      return json(res, 200, { ok: true, categories: config.categories, moved: cards.length })
     }
     if (url.pathname === '/api/save' && req.method === 'POST') {
       const body = await readBody(req)

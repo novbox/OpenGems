@@ -241,7 +241,7 @@ body.repo-mode .hero{display:none}
 .save.remove:hover:not(:disabled){background:color-mix(in srgb,var(--warn) 18%,transparent);color:var(--warn)}
 .save.remove.danger{color:var(--danger);border-color:color-mix(in srgb,var(--danger) 60%,transparent);background:color-mix(in srgb,var(--danger) 14%,transparent)}
 .save.remove.danger:hover:not(:disabled){background:color-mix(in srgb,var(--danger) 22%,transparent);color:var(--danger)}
-main{padding:var(--s-2) 0 var(--s-5)}
+main.wrap{padding-bottom:var(--s-7)}
 .section{padding-top:var(--s-6)}
 .section-head{display:flex;align-items:center;gap:var(--s-3);min-height:34px;margin-bottom:var(--s-4)}
 .section-head h2{margin:0;font-size:var(--fs-h2);line-height:var(--lh-h2);font-weight:var(--fw-semibold);letter-spacing:.2px}
@@ -355,6 +355,7 @@ main{padding:var(--s-2) 0 var(--s-5)}
   .cats .cat[aria-selected="true"]{background:color-mix(in srgb,var(--accent) 14%,transparent);
     border-color:color-mix(in srgb,var(--accent) 45%,transparent);color:var(--accent);font-weight:500}
   .cats .cat.new{border-style:dashed}
+  .sentinel{height:1px}
 </style>
 </head>
 <body>
@@ -749,8 +750,11 @@ function sortItems(list) {
   return copy
 }
 
+let sentinelObserver = null
+
 function render() {
   if (!data) return
+  if (sentinelObserver) { sentinelObserver.disconnect(); sentinelObserver = null }
   renderTabs()
   const savedMode = mode === 'saved'
   const source = savedMode ? savedList.map(savedAsCandidate) : allItems()
@@ -849,11 +853,18 @@ function render() {
     for (const item of [...visible, ...extraSaved]) grid.appendChild(cardFor(item))
     section.append(head, grid)
     if (rest.length > 0) {
-      const more = document.createElement('button')
-      more.className = 'more'
-      more.textContent = '查看更多（还有 ' + rest.length + ' 个）'
-      more.onclick = () => { limits[group.id] = limit + PAGE; render() }
-      section.appendChild(more)
+      const sentinel = document.createElement('div')
+      sentinel.className = 'sentinel'
+      section.appendChild(sentinel)
+      if (sentinelObserver) sentinelObserver.disconnect()
+      sentinelObserver = new IntersectionObserver((entries) => {
+        if (!entries.some((entry) => entry.isIntersecting)) return
+        sentinelObserver.disconnect()
+        sentinelObserver = null
+        limits[group.id] = limit + PAGE
+        render()
+      }, { rootMargin: '240px' })
+      sentinelObserver.observe(sentinel)
     }
     main.appendChild(section)
   }
