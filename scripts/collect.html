@@ -299,7 +299,7 @@ main{padding:var(--s-2) 0 var(--s-5)}
   /* 详情页：对齐 opengems-detail-demo6 的尺寸 */
   .repo-view{max-width:760px;margin:0 auto;width:100%}
   .repo-top{display:grid;grid-template-columns:minmax(0,1fr) 264px;
-    grid-template-areas:"main ." "body tags";column-gap:32px;row-gap:0;align-items:start}
+    grid-template-areas:"main side" "body tags";column-gap:32px;row-gap:0;align-items:start}
   .repo-main{grid-area:main}
   .repo-body{grid-area:body;margin-top:10px}
   .repo-tags{grid-area:tags;margin-top:10px}
@@ -311,8 +311,7 @@ main{padding:var(--s-2) 0 var(--s-5)}
   .detail-meta{gap:var(--s-2);margin:0}
   .detail-meta span{font-size:var(--fs-label);line-height:1.4;padding:2px 8px;border-radius:6px;background:var(--panel-2);color:var(--muted)}
   .detail-meta span.recent{background:color-mix(in srgb,var(--accent) 14%,transparent);color:var(--accent);font-weight:600}
-  .repo-title-row{display:flex;align-items:baseline;justify-content:space-between;gap:24px}
-  .repo-title-row .stars{flex:none}
+  .repo-side{grid-area:side;justify-self:start;align-self:baseline}
   .repo-tags .lab,.repo-side .lab{display:block;font-size:12px;font-weight:500;letter-spacing:.04em;color:var(--muted);opacity:.8;margin-bottom:8px;padding-left:9px}
   .chips{display:flex;flex-wrap:wrap;gap:6px}
   .chip.outline{display:inline-flex;align-items:center;height:22px;background:transparent;border:1px solid var(--line);color:var(--muted);font-size:12px;line-height:1;padding:0 9px;border-radius:8px;white-space:nowrap}
@@ -1116,13 +1115,10 @@ async function renderRepo(fullName) {
     }
     tagsRow.appendChild(more)
   }
-  const titleRow = document.createElement('div')
-  titleRow.className = 'repo-title-row'
-  titleRow.append(h1, stars)
-  headLeft.append(titleRow)
-  headLeft.append(name)
+  headLeft.append(h1, name)
+  side.append(stars)
   tagsBox.append(tagsLab, tagsRow)
-  head.append(headLeft, body, tagsBox)
+  head.append(headLeft, side, body, tagsBox)
   wrap.appendChild(head)
 
   const actions = document.createElement('div')
