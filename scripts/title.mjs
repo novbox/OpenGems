@@ -66,6 +66,8 @@ export function zhDesc(item) {
   const language = item.language ? String(item.language) : ''
   const trait = pick(TRAIT_RULES, `${topics.join(' ')} ${description}`)
 
+  // 描述本身信息量足够时，宁可显示原文，也不要输出没有信息量的类型句
+  if (String(description).trim().length >= 40) return ''
   if (!type) return ''
   const glue = /^[A-Za-z]/.test(type) ? ' ' : ''
   const clauses = []
